@@ -3,56 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ video.title }} - Video Quest</title>
+    <title>{{ video.title }} - GACKfiles Quest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>{{ video.title }}</h1>
-            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Status</a>
+            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Main Page</a>
         </div>
 
         <div class="video-container">
             {% if is_unlocked %}
             <div class="success-banner">
-                <p>Video Unlocked! You can now watch it.</p>
+                <p>✅ Challenge Completed! You solved this one.</p>
             </div>
+            {% endif %}
 
+            <!-- Video always visible once found -->
             <video controls width="100%" preload="metadata">
                 <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
 
-            {% else %}
-            <div class="locked-video">
-                <div class="lock-icon">🔒</div>
-                <p>This video is locked. Enter the keyword to unlock it.</p>
-            </div>
+            <!-- Unlock form always visible -->
+            <div class="unlock-form-container" style="margin-top: 20px;">
+                <h3>Complete the Challenge</h3>
+                <p style="color: #666; margin-bottom: 15px;">
+                    {% if is_unlocked %}
+                    You've already completed this challenge!
+                    {% else %}
+                    Watch the video and enter the secret keyword to complete this challenge.
+                    {% endif %}
+                </p>
 
-            <div class="unlock-form-container">
                 <form id="unlock-form">
                     <input type="hidden" name="video_id" value="{{ video.id }}">
                     <div class="form-group">
-                        <label for="keyword">Unlock Keyword</label>
-                        <input type="text" id="keyword" name="keyword" placeholder="Enter the keyword" required autofocus>
+                        <label for="keyword">Secret Keyword</label>
+                        <input type="text" id="keyword" name="keyword" placeholder="Enter the secret keyword" required {% if is_unlocked %}disabled{% endif %}>
                     </div>
-                    <button type="submit" class="btn btn-primary">Unlock Video</button>
+                    <button type="submit" class="btn btn-primary" {% if is_unlocked %}disabled{% endif %}>
+                        {% if is_unlocked %}Completed{% else %}Submit Answer{% endif %}
+                    </button>
                 </form>
 
                 <div id="unlock-message" class="message" style="display: none;"></div>
             </div>
-            {% endif %}
         </div>
     </div>
 
-    {% if not is_unlocked %}
     <script>
         document.getElementById('unlock-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const formData = new FormData(e.target);
             const messageDiv = document.getElementById('unlock-message');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const keywordInput = document.getElementById('keyword');
 
             try {
                 const response = await fetch('{{ url_for("unlock") }}', {
@@ -64,16 +72,21 @@
 
                 if (result.success) {
                     messageDiv.className = 'message success-message';
-                    messageDiv.textContent = result.message;
+                    messageDiv.textContent = '🎉 ' + result.message;
                     messageDiv.style.display = 'block';
 
-                    // Redirect after 1.5 seconds
+                    // Disable form after successful completion
+                    keywordInput.disabled = true;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Completed';
+
+                    // Show success banner
                     setTimeout(() => {
                         window.location.reload();
-                    }, 1500);
+                    }, 2000);
                 } else {
                     messageDiv.className = 'message error-message';
-                    messageDiv.textContent = result.error || 'Failed to unlock video';
+                    messageDiv.textContent = '❌ ' + (result.error || 'Incorrect keyword. Try again!');
                     messageDiv.style.display = 'block';
                 }
             } catch (error) {
@@ -83,6 +96,5 @@
             }
         });
     </script>
-    {% endif %}
 </body>
 </html>

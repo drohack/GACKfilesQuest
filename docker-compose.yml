@@ -5,12 +5,15 @@ services:
     build: .
     container_name: video-quest
     ports:
-      - "8080:8080"
+      - "57823:8080"
     volumes:
       # Mount database from host to persist data
       - ./app/database.db:/app/database.db
       # Mount videos directory from host
       - ./app/videos:/app/videos
+      # Mount SSL certificates for HTTPS
+      - ./cert.pem:/app/cert.pem
+      - ./key.pem:/app/key.pem
     restart: always
     environment:
       - TZ=UTC

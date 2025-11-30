@@ -297,6 +297,16 @@ def serve_video(user_id, filename):
     """Serve video files"""
     return send_from_directory(app.config['VIDEO_FOLDER'], filename)
 
+@app.route('/cert')
+def download_cert():
+    """Serve SSL certificate for installation on devices"""
+    cert_path = 'cert.pem'
+    if os.path.exists(cert_path):
+        return send_from_directory('.', 'cert.pem',
+                                   as_attachment=True,
+                                   download_name='video-quest.pem')
+    return "Certificate not found", 404
+
 # Initialize database on startup
 if __name__ == '__main__':
     # Create database if it doesn't exist
@@ -307,5 +317,15 @@ if __name__ == '__main__':
     # Ensure videos directory exists
     os.makedirs(app.config['VIDEO_FOLDER'], exist_ok=True)
 
-    # Run the app
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    # Check if SSL certificates exist
+    cert_file = 'cert.pem'
+    key_file = 'key.pem'
+
+    if os.path.exists(cert_file) and os.path.exists(key_file):
+        # Run with HTTPS
+        print(f"Starting server with HTTPS on port 8080")
+        app.run(host='0.0.0.0', port=8080, debug=False, ssl_context=(cert_file, key_file))
+    else:
+        # Run with HTTP (fallback)
+        print("SSL certificates not found, running with HTTP")
+        app.run(host='0.0.0.0', port=8080, debug=False)

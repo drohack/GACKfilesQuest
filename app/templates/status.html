@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status - Video Quest</title>
+    <title>Main Page - GACKfiles Quest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Video Quest - Status</h1>
+            <h1>GACKfiles Quest - Main Page</h1>
             <div class="header-actions">
                 <a href="{{ url_for('qrscan') }}" class="btn btn-primary">Scan QR Code</a>
                 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
@@ -17,26 +17,26 @@
         </div>
 
         <div class="status-section">
-            <h2 class="section-title unlocked">Unlocked Videos ({{ unlocked_videos|length }})</h2>
+            <h2 class="section-title unlocked">✅ Completed Challenges ({{ unlocked_videos|length }})</h2>
             {% if unlocked_videos %}
             <div class="video-list">
                 {% for video in unlocked_videos %}
                 <div class="video-card unlocked">
                     <div class="video-info">
                         <h3>{{ video.title }}</h3>
-                        <p class="timestamp">Unlocked: {{ video.unlocked_at }}</p>
+                        <p class="timestamp">Completed: {{ video.unlocked_at }}</p>
                     </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">View</a>
+                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">Watch Again</a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="empty-message">No videos unlocked yet. Find and unlock videos to see them here!</p>
+            <p class="empty-message">No challenges completed yet. Find videos and solve them to see them here!</p>
             {% endif %}
         </div>
 
         <div class="status-section">
-            <h2 class="section-title found">Found Videos ({{ found_videos|length }})</h2>
+            <h2 class="section-title found">📹 Found Videos ({{ found_videos|length }})</h2>
             {% if found_videos %}
             <div class="video-list">
                 {% for video in found_videos %}
@@ -44,9 +44,9 @@
                     <div class="video-info">
                         <h3>{{ video.title }}</h3>
                         <p class="timestamp">Found: {{ video.found_at }}</p>
-                        <p class="hint-text">Enter the keyword to unlock this video</p>
+                        <p class="hint-text">Watch the video and solve the challenge!</p>
                     </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">Unlock</a>
+                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">Watch & Solve</a>
                 </div>
                 {% endfor %}
             </div>
@@ -56,7 +56,7 @@
         </div>
 
         <div class="status-section">
-            <h2 class="section-title missing">Missing Videos ({{ missing_videos|length }})</h2>
+            <h2 class="section-title missing">🔍 Undiscovered Challenges ({{ missing_videos|length }})</h2>
             {% if missing_videos %}
             <div class="video-list">
                 {% for video in missing_videos %}
@@ -69,7 +69,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <p class="empty-message">You've found all videos! Great work!</p>
+            <p class="empty-message">🎉 You've found all challenges! Now complete them!</p>
             {% endif %}
         </div>
     </div>
