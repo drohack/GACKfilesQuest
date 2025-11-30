@@ -9,7 +9,10 @@
       "Bash(docker-compose logs:*)",
       "Bash(docker-compose ps:*)",
       "Bash(curl:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(openssl req:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(ipconfig:*)"
     ],
     "deny": [],
     "ask": []

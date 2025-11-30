@@ -9,8 +9,9 @@
 <body>
     <div class="container">
         <div class="card">
-            <h1>GACKfiles Quest</h1>
-            <h2>Login</h2>
+            <h1>GACKfiles</h1>
+            <h2>Agent Access Portal</h2>
+            <p style="text-align: center; color: #00ff41; margin-bottom: 20px; font-style: italic; font-size: 14px;">The Truth Is Out There</p>
 
             {% if error %}
             <div class="error-message">
@@ -20,16 +21,16 @@
 
             <form method="POST" action="{{ url_for('login') }}">
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required autofocus>
+                    <label for="username">Agent ID</label>
+                    <input type="text" id="username" name="username" placeholder="Enter agent identifier" required autofocus>
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    <label for="password">Access Code</label>
+                    <input type="password" id="password" name="password" placeholder="Enter classified code" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">Access Files</button>
             </form>
         </div>
     </div>

@@ -10,13 +10,13 @@
     <div class="container">
         <div class="header">
             <h1>{{ video.title }}</h1>
-            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Main Page</a>
+            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
         </div>
 
         <div class="video-container">
             {% if is_unlocked %}
             <div class="success-banner">
-                <p>✅ Challenge Completed! You solved this one.</p>
+                <p>✓ CASE SOLVED - Evidence Analyzed Successfully</p>
             </div>
             {% endif %}
 
@@ -28,23 +28,23 @@
 
             <!-- Unlock form always visible -->
             <div class="unlock-form-container" style="margin-top: 20px;">
-                <h3>Complete the Challenge</h3>
-                <p style="color: #666; margin-bottom: 15px;">
+                <h3>Case Analysis</h3>
+                <p style="color: #aaa; margin-bottom: 15px;">
                     {% if is_unlocked %}
-                    You've already completed this challenge!
+                    CASE STATUS: CLOSED - Solution verified and filed.
                     {% else %}
-                    Watch the video and enter the secret keyword to complete this challenge.
+                    Analyze the evidence footage and enter the solution code to close this case.
                     {% endif %}
                 </p>
 
                 <form id="unlock-form">
                     <input type="hidden" name="video_id" value="{{ video.id }}">
                     <div class="form-group">
-                        <label for="keyword">Secret Keyword</label>
-                        <input type="text" id="keyword" name="keyword" placeholder="Enter the secret keyword" required {% if is_unlocked %}disabled{% endif %}>
+                        <label for="keyword">Solution Code</label>
+                        <input type="text" id="keyword" name="keyword" placeholder="Enter classified code" required {% if is_unlocked %}disabled{% endif %}>
                     </div>
                     <button type="submit" class="btn btn-primary" {% if is_unlocked %}disabled{% endif %}>
-                        {% if is_unlocked %}Completed{% else %}Submit Answer{% endif %}
+                        {% if is_unlocked %}Case Closed{% else %}Submit Solution{% endif %}
                     </button>
                 </form>
 
@@ -72,13 +72,13 @@
 
                 if (result.success) {
                     messageDiv.className = 'message success-message';
-                    messageDiv.textContent = '🎉 ' + result.message;
+                    messageDiv.textContent = '✓ ' + result.message + ' - Case solved!';
                     messageDiv.style.display = 'block';
 
                     // Disable form after successful completion
                     keywordInput.disabled = true;
                     submitBtn.disabled = true;
-                    submitBtn.textContent = 'Completed';
+                    submitBtn.textContent = 'Case Closed';
 
                     // Show success banner
                     setTimeout(() => {
@@ -86,7 +86,7 @@
                     }, 2000);
                 } else {
                     messageDiv.className = 'message error-message';
-                    messageDiv.textContent = '❌ ' + (result.error || 'Incorrect keyword. Try again!');
+                    messageDiv.textContent = '✗ ' + (result.error || 'Invalid code. Reanalyze the evidence!');
                     messageDiv.style.display = 'block';
                 }
             } catch (error) {

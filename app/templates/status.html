@@ -9,67 +9,67 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>GACKfiles Quest - Main Page</h1>
+            <h1>GACKfiles - Field Reports</h1>
             <div class="header-actions">
-                <a href="{{ url_for('qrscan') }}" class="btn btn-primary">Scan QR Code</a>
-                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+                <a href="{{ url_for('qrscan') }}" class="btn btn-primary">Scan Evidence</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
             </div>
         </div>
 
         <div class="status-section">
-            <h2 class="section-title unlocked">✅ Completed Challenges ({{ unlocked_videos|length }})</h2>
+            <h2 class="section-title unlocked">✓ SOLVED CASES ({{ unlocked_videos|length }})</h2>
             {% if unlocked_videos %}
             <div class="video-list">
                 {% for video in unlocked_videos %}
                 <div class="video-card unlocked">
                     <div class="video-info">
                         <h3>{{ video.title }}</h3>
-                        <p class="timestamp">Completed: {{ video.unlocked_at }}</p>
+                        <p class="timestamp">CASE CLOSED: {{ video.unlocked_at }}</p>
                     </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">Watch Again</a>
+                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-primary btn-small">Review Evidence</a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="empty-message">No challenges completed yet. Find videos and solve them to see them here!</p>
+            <p class="empty-message">No cases solved yet. Collect evidence and crack the codes to solve them!</p>
             {% endif %}
         </div>
 
         <div class="status-section">
-            <h2 class="section-title found">📹 Found Videos ({{ found_videos|length }})</h2>
+            <h2 class="section-title found">📂 COLLECTED EVIDENCE ({{ found_videos|length }})</h2>
             {% if found_videos %}
             <div class="video-list">
                 {% for video in found_videos %}
                 <div class="video-card found">
                     <div class="video-info">
                         <h3>{{ video.title }}</h3>
-                        <p class="timestamp">Found: {{ video.found_at }}</p>
-                        <p class="hint-text">Watch the video and solve the challenge!</p>
+                        <p class="timestamp">DISCOVERED: {{ video.found_at }}</p>
+                        <p class="hint-text">Analyze the evidence and crack the code!</p>
                     </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-small">Watch & Solve</a>
+                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-primary btn-small">Investigate</a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="empty-message">No videos found yet. Scan QR codes to discover them!</p>
+            <p class="empty-message">No evidence collected yet. Scan for clues to discover them!</p>
             {% endif %}
         </div>
 
         <div class="status-section">
-            <h2 class="section-title missing">🔍 Undiscovered Challenges ({{ missing_videos|length }})</h2>
+            <h2 class="section-title missing">🔎 OPEN INVESTIGATIONS ({{ missing_videos|length }})</h2>
             {% if missing_videos %}
             <div class="video-list">
                 {% for video in missing_videos %}
                 <div class="video-card missing">
                     <div class="video-info">
                         <h3>{{ video.title }}</h3>
-                        <p class="hint"><strong>Hint:</strong> {{ video.hint }}</p>
+                        <p class="hint"><strong>LEAD:</strong> {{ video.hint }}</p>
                     </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="empty-message">🎉 You've found all challenges! Now complete them!</p>
+            <p class="empty-message">All evidence discovered. Time to solve the cases, agent!</p>
             {% endif %}
         </div>
     </div>
