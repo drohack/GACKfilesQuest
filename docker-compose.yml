@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  video-quest:
+    build: .
+    container_name: video-quest
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount database from host to persist data
+      - ./app/database.db:/app/database.db
+      # Mount videos directory from host
+      - ./app/videos:/app/videos
+    restart: always
+    environment:
+      - TZ=UTC

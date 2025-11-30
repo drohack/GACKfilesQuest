@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Database
+app/database.db
+app/database.db-journal
+*.db
+*.db-journal
+*.backup
+*.bak
+
+# Videos (too large for git)
+app/videos/*.mp4
+app/videos/*.avi
+app/videos/*.mov
+app/videos/*.mkv
+
+# Keep videos directory but not contents
+!app/videos/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.directory
+
+# Docker volumes
+docker-volumes/
+
+# Logs
+*.log
+
+# Backups
+backup/

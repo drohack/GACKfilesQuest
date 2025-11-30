@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan QR Code - Video Quest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Scan QR Code</h1>
+            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Status</a>
+        </div>
+
+        <div class="card">
+            <p class="instruction">Point your camera at a QR code to scan it</p>
+
+            <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+
+            <div id="scan-result" class="scan-result" style="display: none;">
+                <p id="result-text"></p>
+            </div>
+
+            <div id="error-message" class="error-message" style="display: none;">
+                <p id="error-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='qrscanner.js') }}"></script>
+</body>
+</html>

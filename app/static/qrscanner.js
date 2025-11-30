@@ -1,0 +1,131 @@
+// QR Code Scanner functionality
+let html5QrCode;
+
+// Initialize the QR code scanner
+function initScanner() {
+    html5QrCode = new Html5Qrcode("qr-reader");
+
+    const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0
+    };
+
+    // Start scanning
+    html5QrCode.start(
+        { facingMode: "environment" }, // Use back camera
+        config,
+        onScanSuccess,
+        onScanError
+    ).catch(err => {
+        // If back camera fails, try front camera
+        html5QrCode.start(
+            { facingMode: "user" },
+            config,
+            onScanSuccess,
+            onScanError
+        ).catch(err => {
+            showError("Unable to access camera. Please grant camera permissions.");
+            console.error("Camera error:", err);
+        });
+    });
+}
+
+// Handle successful QR code scan
+function onScanSuccess(decodedText, decodedResult) {
+    console.log("QR Code scanned:", decodedText);
+
+    // Stop scanning
+    html5QrCode.stop().then(() => {
+        // Parse the QR code content
+        processQRCode(decodedText);
+    }).catch(err => {
+        console.error("Error stopping scanner:", err);
+        processQRCode(decodedText);
+    });
+}
+
+// Handle scan errors (can be ignored, happens frequently during scanning)
+function onScanError(errorMessage) {
+    // Ignore - this fires constantly while scanning
+}
+
+// Process the scanned QR code
+function processQRCode(qrContent) {
+    // Check if it's a video URL
+    // Expected formats:
+    // - Full URL: http://example.com/video?id=1
+    // - Relative URL: /video?id=1
+    // - Just the ID: 1
+
+    let videoId = null;
+
+    // Try to extract video ID from various formats
+    if (qrContent.includes('/video?id=')) {
+        const match = qrContent.match(/\/video\?id=(\d+)/);
+        if (match) {
+            videoId = match[1];
+        }
+    } else if (qrContent.match(/^\d+$/)) {
+        // Just a number
+        videoId = qrContent;
+    }
+
+    if (videoId) {
+        // Redirect to video page
+        showSuccess("Video found! Redirecting...");
+        setTimeout(() => {
+            window.location.href = `/video?id=${videoId}`;
+        }, 1000);
+    } else {
+        // Invalid QR code
+        showError("Invalid QR code. This doesn't appear to be a video quest code.");
+        // Restart scanner after 3 seconds
+        setTimeout(() => {
+            hideMessages();
+            initScanner();
+        }, 3000);
+    }
+}
+
+// Show success message
+function showSuccess(message) {
+    const resultDiv = document.getElementById('scan-result');
+    const resultText = document.getElementById('result-text');
+    const errorDiv = document.getElementById('error-message');
+
+    errorDiv.style.display = 'none';
+    resultText.textContent = message;
+    resultDiv.style.display = 'block';
+}
+
+// Show error message
+function showError(message) {
+    const resultDiv = document.getElementById('scan-result');
+    const errorDiv = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+
+    resultDiv.style.display = 'none';
+    errorText.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+// Hide all messages
+function hideMessages() {
+    document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('error-message').style.display = 'none';
+}
+
+// Initialize scanner when page loads
+window.addEventListener('load', () => {
+    initScanner();
+});
+
+// Clean up when page unloads
+window.addEventListener('beforeunload', () => {
+    if (html5QrCode) {
+        html5QrCode.stop().catch(err => {
+            console.error("Error stopping scanner:", err);
+        });
+    }
+});

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ video.title }} - Video Quest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ video.title }}</h1>
+            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Status</a>
+        </div>
+
+        <div class="video-container">
+            {% if is_unlocked %}
+            <div class="success-banner">
+                <p>Video Unlocked! You can now watch it.</p>
+            </div>
+
+            <video controls width="100%" preload="metadata">
+                <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            {% else %}
+            <div class="locked-video">
+                <div class="lock-icon">🔒</div>
+                <p>This video is locked. Enter the keyword to unlock it.</p>
+            </div>
+
+            <div class="unlock-form-container">
+                <form id="unlock-form">
+                    <input type="hidden" name="video_id" value="{{ video.id }}">
+                    <div class="form-group">
+                        <label for="keyword">Unlock Keyword</label>
+                        <input type="text" id="keyword" name="keyword" placeholder="Enter the keyword" required autofocus>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Unlock Video</button>
+                </form>
+
+                <div id="unlock-message" class="message" style="display: none;"></div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if not is_unlocked %}
+    <script>
+        document.getElementById('unlock-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const messageDiv = document.getElementById('unlock-message');
+
+            try {
+                const response = await fetch('{{ url_for("unlock") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageDiv.className = 'message success-message';
+                    messageDiv.textContent = result.message;
+                    messageDiv.style.display = 'block';
+
+                    // Redirect after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    messageDiv.className = 'message error-message';
+                    messageDiv.textContent = result.error || 'Failed to unlock video';
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                messageDiv.className = 'message error-message';
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

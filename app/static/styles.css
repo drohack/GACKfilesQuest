@@ -1,0 +1,380 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header h1 {
+    color: white;
+    font-size: 28px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Cards */
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.card h1 {
+    color: #667eea;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.card h2 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 20px;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+button[type="submit"] {
+    width: 100%;
+}
+
+/* Messages */
+.error-message {
+    background: #fee;
+    color: #c33;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #c33;
+}
+
+.success-message {
+    background: #efe;
+    color: #3c3;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3c3;
+}
+
+.message {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 4px solid;
+}
+
+.success-banner {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #c3e6cb;
+}
+
+/* Status sections */
+.status-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid;
+}
+
+.section-title.unlocked {
+    color: #28a745;
+    border-bottom-color: #28a745;
+}
+
+.section-title.found {
+    color: #ffc107;
+    border-bottom-color: #ffc107;
+}
+
+.section-title.missing {
+    color: #6c757d;
+    border-bottom-color: #6c757d;
+}
+
+/* Video list */
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.video-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 5px solid;
+    gap: 15px;
+}
+
+.video-card.unlocked {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+.video-card.found {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.video-card.missing {
+    background: #e9ecef;
+    border-left-color: #6c757d;
+}
+
+.video-info {
+    flex: 1;
+}
+
+.video-info h3 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.timestamp {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.hint {
+    font-size: 14px;
+    color: #555;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.hint-text {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.empty-message {
+    color: #666;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Video container */
+.video-container {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.video-container video {
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.locked-video {
+    background: #f8f9fa;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 60px 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.lock-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+}
+
+.locked-video p {
+    color: #666;
+    font-size: 18px;
+}
+
+.unlock-form-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* QR Scanner */
+.instruction {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+#qr-reader {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.scan-result {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 22px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .video-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .video-card .btn {
+        align-self: stretch;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        flex: 1;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .btn {
+        padding: 15px 24px;
+        font-size: 17px;
+    }
+
+    .form-group input {
+        padding: 15px;
+        font-size: 17px;
+    }
+}
