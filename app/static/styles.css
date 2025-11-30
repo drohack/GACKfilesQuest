@@ -655,53 +655,57 @@ button[type="submit"] {
     opacity: 1;
 }
 
-/* Head - vertical line points down */
+/* Head - vertical line points to center of head */
 .marker-1 .marker-line {
     width: 3px;
-    height: 80px;
+    height: 70px;
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
     background: #555;
 }
 
-/* Claws - horizontal line points right */
+/* Claws - angled line points down to left claw tip */
 .marker-2 .marker-line {
-    width: 350px;
+    width: 60px;
     height: 3px;
     top: 50%;
     left: 100%;
-    transform: translateY(-50%);
+    transform-origin: left center;
+    transform: rotate(15deg);
     background: #555;
 }
 
-/* Body - horizontal line points left */
+/* Body - angled line points up to center of body */
 .marker-3 .marker-line {
-    width: 350px;
+    width: 100px;
     height: 3px;
     top: 50%;
     right: 100%;
-    transform: translateY(-50%);
+    transform-origin: right center;
+    transform: rotate(20deg);
     background: #555;
 }
 
-/* Feet - vertical line points up */
+/* Feet - angled line points to left foot base */
 .marker-4 .marker-line {
     width: 3px;
-    height: 80px;
+    height: 23px;
     bottom: 100%;
     left: 50%;
-    transform: translateX(-50%);
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-40deg);
     background: #555;
 }
 
-/* Tail - horizontal line points right */
+/* Tail - angled line points to middle of tail */
 .marker-5 .marker-line {
-    width: 350px;
+    width: 100px;
     height: 3px;
     top: 50%;
     left: 100%;
-    transform: translateY(-50%);
+    transform-origin: left center;
+    transform: rotate(12deg);
     background: #555;
 }
 
@@ -735,8 +739,9 @@ button[type="submit"] {
     position: relative;
 }
 
-/* Head marker can be wider */
-.marker-1 .marker-content {
+/* Head and Feet markers can be wider */
+.marker-1 .marker-content,
+.marker-4 .marker-content {
     width: 180px;
     padding: 8px 10px;
 }
@@ -785,19 +790,20 @@ button[type="submit"] {
 }
 
 .marker-header h3 {
-    color: #e0e0e0;
-    font-size: 10px;
+    color: #f5f5f5;
+    font-size: 12px;
     margin: 0;
     padding: 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    line-height: 1.1;
+    line-height: 1.2;
     word-wrap: break-word;
     flex: 1;
+    font-weight: bold;
 }
 
 .marker-1 .marker-header h3 {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .marker-info {
@@ -807,12 +813,13 @@ button[type="submit"] {
 }
 
 .marker-status {
-    font-size: 8px;
+    font-size: 10px;
     margin: 0 0 3px 0;
     padding: 0;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    line-height: 1.0;
+    line-height: 1.1;
+    font-weight: 600;
 }
 
 .marker-status.solved {
@@ -820,22 +827,22 @@ button[type="submit"] {
 }
 
 .marker-status.found {
-    color: #ffa500;
+    color: #ffb84d;
 }
 
 .marker-status.missing {
-    color: #888;
+    color: #aaa;
     font-style: italic;
 }
 
 .marker-link {
     display: block;
-    padding: 4px 6px;
+    padding: 5px 6px;
     background: #00ff41;
-    color: #0a0a0a;
+    color: #000;
     text-decoration: none;
     border-radius: 2px;
-    font-size: 9px;
+    font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
     font-weight: bold;
@@ -903,9 +910,5 @@ button[type="submit"] {
 
     .marker-1, .marker-2, .marker-3, .marker-4, .marker-5 {
         position: absolute;
-    }
-
-    .marker-line {
-        display: none; /* Hide lines on mobile for simplicity */
     }
 }
