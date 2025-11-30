@@ -16,61 +16,68 @@
             </div>
         </div>
 
-        <div class="status-section">
-            <h2 class="section-title unlocked">✓ SOLVED CASES ({{ unlocked_videos|length }})</h2>
-            {% if unlocked_videos %}
-            <div class="video-list">
-                {% for video in unlocked_videos %}
-                <div class="video-card unlocked">
-                    <div class="video-info">
-                        <h3>{{ video.title }}</h3>
-                        <p class="timestamp">CASE CLOSED: {{ video.unlocked_at }}</p>
-                    </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-primary btn-small">Review Evidence</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="empty-message">No cases solved yet. Collect evidence and crack the codes to solve them!</p>
-            {% endif %}
-        </div>
+        <div class="cryptid-container">
+            <h2 class="cryptid-title">TARGET: UNKNOWN CRYPTID</h2>
+            <p class="cryptid-subtitle">Collect evidence from each body part to complete the investigation</p>
 
-        <div class="status-section">
-            <h2 class="section-title found">📂 COLLECTED EVIDENCE ({{ found_videos|length }})</h2>
-            {% if found_videos %}
-            <div class="video-list">
-                {% for video in found_videos %}
-                <div class="video-card found">
-                    <div class="video-info">
-                        <h3>{{ video.title }}</h3>
-                        <p class="timestamp">DISCOVERED: {{ video.found_at }}</p>
-                        <p class="hint-text">Analyze the evidence and crack the code!</p>
-                    </div>
-                    <a href="{{ url_for('video', id=video.id) }}" class="btn btn-primary btn-small">Investigate</a>
+            <div class="cryptid-diagram">
+                <!-- Central cryptid silhouette -->
+                <div class="cryptid-silhouette">
+                    <div class="cryptid-head"></div>
+                    <div class="cryptid-body"></div>
+                    <div class="cryptid-tail"></div>
+                    <div class="cryptid-leg left"></div>
+                    <div class="cryptid-leg right"></div>
+                    <div class="cryptid-claw left"></div>
+                    <div class="cryptid-claw right"></div>
                 </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="empty-message">No evidence collected yet. Scan for clues to discover them!</p>
-            {% endif %}
-        </div>
 
-        <div class="status-section">
-            <h2 class="section-title missing">🔎 OPEN INVESTIGATIONS ({{ missing_videos|length }})</h2>
-            {% if missing_videos %}
-            <div class="video-list">
-                {% for video in missing_videos %}
-                <div class="video-card missing">
-                    <div class="video-info">
-                        <h3>{{ video.title }}</h3>
-                        <p class="hint"><strong>LEAD:</strong> {{ video.hint }}</p>
+                <!-- Video markers with connecting lines -->
+                {% for video in videos %}
+                {% set found = video.found_at %}
+                {% set solved = video.unlocked_at %}
+
+                <div class="evidence-marker marker-{{ video.id }} {% if solved %}solved{% elif found %}found{% else %}missing{% endif %}"
+                     data-part="{{ video.title }}">
+                    <div class="marker-line"></div>
+                    <div class="marker-content">
+                        <div class="marker-header">
+                            <span class="marker-icon">
+                                {% if solved %}✓{% elif found %}📂{% else %}?{% endif %}
+                            </span>
+                            <h3>{{ video.title }}</h3>
+                        </div>
+                        <div class="marker-info">
+                            {% if solved %}
+                            <p class="marker-status solved">SOLVED</p>
+                            <a href="{{ url_for('video', id=video.id) }}" class="marker-link">Review</a>
+                            {% elif found %}
+                            <p class="marker-status found">FOUND</p>
+                            <a href="{{ url_for('video', id=video.id) }}" class="marker-link">Investigate</a>
+                            {% else %}
+                            <p class="marker-status missing">{{ video.hint }}</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <p class="empty-message">All evidence discovered. Time to solve the cases, agent!</p>
-            {% endif %}
+
+            <!-- Progress summary -->
+            <div class="progress-summary">
+                <div class="progress-stat">
+                    <span class="stat-number">{{ unlocked_count }}</span>
+                    <span class="stat-label">Solved</span>
+                </div>
+                <div class="progress-stat">
+                    <span class="stat-number">{{ found_count }}</span>
+                    <span class="stat-label">Found</span>
+                </div>
+                <div class="progress-stat">
+                    <span class="stat-number">{{ total_count }}</span>
+                    <span class="stat-label">Total</span>
+                </div>
+            </div>
         </div>
     </div>
 </body>

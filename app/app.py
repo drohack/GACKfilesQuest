@@ -196,24 +196,17 @@ def status(user_id):
 
     conn.close()
 
-    # Categorize videos
-    found_videos = []
-    unlocked_videos = []
-    missing_videos = []
-
-    for video in videos:
-        video_dict = dict(video)
-        if video['unlocked_at']:
-            unlocked_videos.append(video_dict)
-        elif video['found_at']:
-            found_videos.append(video_dict)
-        else:
-            missing_videos.append(video_dict)
+    # Convert to list of dicts and calculate counts
+    videos_list = [dict(video) for video in videos]
+    total_count = len(videos_list)
+    found_count = sum(1 for v in videos_list if v['found_at'])
+    unlocked_count = sum(1 for v in videos_list if v['unlocked_at'])
 
     return render_template('status.html',
-                         found_videos=found_videos,
-                         unlocked_videos=unlocked_videos,
-                         missing_videos=missing_videos)
+                         videos=videos_list,
+                         total_count=total_count,
+                         found_count=found_count,
+                         unlocked_count=unlocked_count)
 
 @app.route('/qrscan')
 @login_required

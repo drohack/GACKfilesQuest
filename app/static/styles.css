@@ -493,3 +493,419 @@ button[type="submit"] {
 .header h1 {
     animation: glow 3s ease-in-out infinite;
 }
+
+/* Cryptid Diagram Styles */
+.cryptid-container {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.cryptid-title {
+    color: #00ff41;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin: 20px 20px 10px 20px;
+    font-size: 24px;
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+}
+
+.cryptid-subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin: 0 20px 30px 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cryptid-diagram {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 450px;
+    margin: 0 auto 20px;
+    overflow: visible;
+}
+
+/* Cryptid Silhouette - Simple monster shape */
+.cryptid-silhouette {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.3));
+}
+
+.cryptid-head {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #00ff41 0%, #00cc34 100%);
+    border-radius: 50% 50% 45% 45%;
+    position: relative;
+    margin: 0 auto;
+    opacity: 0.4;
+}
+
+.cryptid-body {
+    width: 90px;
+    height: 110px;
+    background: linear-gradient(135deg, #00ff41 0%, #00cc34 100%);
+    border-radius: 50% 50% 30% 30%;
+    margin: -10px auto 0;
+    position: relative;
+    opacity: 0.4;
+}
+
+.cryptid-tail {
+    width: 45px;
+    height: 60px;
+    background: linear-gradient(135deg, #00ff41 0%, #00cc34 100%);
+    border-radius: 50%;
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    opacity: 0.4;
+}
+
+.cryptid-leg {
+    width: 22px;
+    height: 50px;
+    background: linear-gradient(180deg, #00ff41 0%, #00cc34 100%);
+    border-radius: 5px 5px 40% 40%;
+    position: absolute;
+    bottom: -50px;
+    opacity: 0.4;
+}
+
+.cryptid-leg.left {
+    left: 15px;
+}
+
+.cryptid-leg.right {
+    right: 15px;
+}
+
+.cryptid-claw {
+    width: 30px;
+    height: 40px;
+    background: linear-gradient(135deg, #00ff41 0%, #00cc34 100%);
+    border-radius: 40% 10% 50% 50%;
+    position: absolute;
+    top: 75px;
+    opacity: 0.4;
+}
+
+.cryptid-claw.left {
+    left: -25px;
+    transform: rotate(-20deg);
+}
+
+.cryptid-claw.right {
+    right: -25px;
+    transform: rotate(20deg);
+}
+
+/* Evidence Markers positioned around the cryptid */
+.evidence-marker {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Positioning for each marker (5 body parts) */
+.marker-1 { /* Head */
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.marker-2 { /* Claws */
+    top: 35%;
+    left: 0;
+}
+
+.marker-3 { /* Body */
+    top: 58%;
+    right: 0;
+}
+
+.marker-4 { /* Feet */
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.marker-5 { /* Tail */
+    top: 60%;
+    left: 0;
+}
+
+/* Connecting lines from marker to center */
+.marker-line {
+    position: absolute;
+    background: #555;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 1;
+}
+
+/* Head - vertical line points down */
+.marker-1 .marker-line {
+    width: 3px;
+    height: 80px;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #555;
+}
+
+/* Claws - horizontal line points right */
+.marker-2 .marker-line {
+    width: 350px;
+    height: 3px;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    background: #555;
+}
+
+/* Body - horizontal line points left */
+.marker-3 .marker-line {
+    width: 350px;
+    height: 3px;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    background: #555;
+}
+
+/* Feet - vertical line points up */
+.marker-4 .marker-line {
+    width: 3px;
+    height: 80px;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #555;
+}
+
+/* Tail - horizontal line points right */
+.marker-5 .marker-line {
+    width: 350px;
+    height: 3px;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    background: #555;
+}
+
+/* Line colors based on status */
+.evidence-marker.solved .marker-line {
+    background: #00ff41;
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+.evidence-marker.found .marker-line {
+    background: #ffa500;
+    box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+}
+
+.evidence-marker.missing .marker-line {
+    background: #555;
+}
+
+/* Marker content box */
+.marker-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    padding: 6px 5px;
+    width: 90px;
+    z-index: 10;
+    position: relative;
+}
+
+/* Head marker can be wider */
+.marker-1 .marker-content {
+    width: 180px;
+    padding: 8px 10px;
+}
+
+.evidence-marker.solved .marker-content {
+    border-color: #00ff41;
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+}
+
+.evidence-marker.found .marker-content {
+    border-color: #ffa500;
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.2);
+}
+
+.evidence-marker.missing .marker-content {
+    border-color: #444;
+}
+
+.marker-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.marker-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.evidence-marker.solved .marker-icon {
+    color: #00ff41;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.6);
+}
+
+.evidence-marker.found .marker-icon {
+    color: #ffa500;
+}
+
+.evidence-marker.missing .marker-icon {
+    color: #666;
+}
+
+.marker-header h3 {
+    color: #e0e0e0;
+    font-size: 10px;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+    word-wrap: break-word;
+    flex: 1;
+}
+
+.marker-1 .marker-header h3 {
+    font-size: 13px;
+}
+
+.marker-info {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.marker-status {
+    font-size: 8px;
+    margin: 0 0 3px 0;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.0;
+}
+
+.marker-status.solved {
+    color: #00ff41;
+}
+
+.marker-status.found {
+    color: #ffa500;
+}
+
+.marker-status.missing {
+    color: #888;
+    font-style: italic;
+}
+
+.marker-link {
+    display: block;
+    padding: 4px 6px;
+    background: #00ff41;
+    color: #0a0a0a;
+    text-decoration: none;
+    border-radius: 2px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: bold;
+    transition: all 0.3s;
+    text-align: center;
+    width: 100%;
+}
+
+.marker-link:hover {
+    background: #00cc34;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+/* Progress Summary */
+.progress-summary {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    margin: 20px;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+}
+
+.progress-stat {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 32px;
+    color: #00ff41;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+/* Mobile responsiveness for cryptid diagram */
+@media (max-width: 768px) {
+    .cryptid-diagram {
+        height: 420px;
+    }
+
+    .marker-content {
+        width: 90px;
+        padding: 6px 5px;
+    }
+
+    .marker-info h3 {
+        font-size: 12px;
+    }
+
+    .marker-status {
+        font-size: 10px;
+    }
+
+    .marker-1, .marker-2, .marker-3, .marker-4, .marker-5 {
+        position: absolute;
+    }
+
+    .marker-line {
+        display: none; /* Hide lines on mobile for simplicity */
+    }
+}

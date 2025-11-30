@@ -81,11 +81,13 @@ def init_database():
     except sqlite3.IntegrityError:
         print("[!] Default user already exists")
 
-    # Add sample videos
+    # Add sample videos - one for each cryptid body part
     sample_videos = [
-        ('video1.mp4', 'First Challenge', 'secret1', 'Look near the entrance'),
-        ('video2.mp4', 'Second Challenge', 'secret2', 'Check the kitchen area'),
-        ('video3.mp4', 'Final Challenge', 'secret3', 'Hidden in plain sight'),
+        ('head.mp4', 'HEAD', 'cranium', 'Scan the highest point of the location'),
+        ('claws.mp4', 'CLAWS', 'talons', 'Look for evidence near the entrance'),
+        ('body.mp4', 'BODY', 'torso', 'Search the central area'),
+        ('feet.mp4', 'FEET', 'limbs', 'Check near the ground level'),
+        ('tail.mp4', 'TAIL', 'appendage', 'Investigate the rear section'),
     ]
 
     for filename, title, keyword, hint in sample_videos:
