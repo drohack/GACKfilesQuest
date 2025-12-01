@@ -147,31 +147,37 @@
             <table class="admin-table">
                 <thead>
                     <tr>
+                        <th style="width: 1%; white-space: nowrap;">Action</th>
                         <th>Title</th>
                         <th>Keyword</th>
                         <th>Hint</th>
+                        <th>Scan Code</th>
                         <th>Filename</th>
-                        <th style="width: 1%; white-space: nowrap;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for video in videos %}
                     <tr>
-                        <td>{{ video.title }}</td>
-                        <td><code>{{ video.keyword }}</code></td>
-                        <td>{{ video.hint }}</td>
-                        <td><code>{{ video.filename }}</code></td>
                         <td style="white-space: nowrap;">
                             <button class="btn-edit" onclick="toggleEditForm('video-{{ video.id }}')">Edit</button>
                         </td>
+                        <td>{{ video.title }}</td>
+                        <td><code>{{ video.keyword }}</code></td>
+                        <td>{{ video.hint }}</td>
+                        <td><code style="color: #00ff41;">{{ video.scan_code }}</code></td>
+                        <td><code>{{ video.filename }}</code></td>
                     </tr>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <div id="video-{{ video.id }}" class="edit-form">
                                 <form onsubmit="return editVideo(event, {{ video.id }})">
                                     <div class="form-row">
                                         <label>Title:</label>
                                         <input type="text" name="title" value="{{ video.title }}">
+                                    </div>
+                                    <div class="form-row">
+                                        <label>Scan Code:</label>
+                                        <input type="text" name="scan_code" value="{{ video.scan_code }}">
                                     </div>
                                     <div class="form-row">
                                         <label>Keyword:</label>

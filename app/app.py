@@ -239,6 +239,38 @@ def qrscan(user_id):
     """QR code scanning page"""
     return render_template('qrscan.html')
 
+@app.route('/verify-scan', methods=['POST'])
+@login_required
+def verify_scan(user_id):
+    """Verify scanned code and mark video as found"""
+    scan_code = request.json.get('code', '').strip()
+
+    if not scan_code:
+        return jsonify({'success': False, 'error': 'No scan code provided'}), 400
+
+    conn = get_db_connection()
+
+    # Look up video by scan code
+    video = conn.execute('SELECT id FROM videos WHERE scan_code = ?', (scan_code,)).fetchone()
+
+    if not video:
+        conn.close()
+        return jsonify({'success': False, 'error': 'Invalid scan code'}), 404
+
+    video_id = video['id']
+
+    # Mark as found
+    try:
+        conn.execute('INSERT INTO found (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        # Already found, that's okay
+        pass
+
+    conn.close()
+
+    return jsonify({'success': True, 'video_id': video_id})
+
 @app.route('/video')
 @login_required
 def video(user_id):
@@ -257,13 +289,14 @@ def video(user_id):
         conn.close()
         return "Video not found", 404
 
-    # Mark as found if not already
-    try:
-        conn.execute('INSERT INTO found (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        # Already found, that's okay
-        pass
+    # Check if user has found this video (scanned the QR code)
+    found = conn.execute('SELECT found_at FROM found WHERE user_id = ? AND video_id = ?',
+                        (user_id, video_id)).fetchone()
+
+    if not found:
+        conn.close()
+        # User hasn't scanned the QR code - show error
+        return render_template('no_access.html', video_title=video_data['title'])
 
     # Check if unlocked
     unlocked = conn.execute('SELECT unlocked_at FROM unlocks WHERE user_id = ? AND video_id = ?',
@@ -349,6 +382,7 @@ def admin_edit_video(user_id):
     """Handle video edit from admin panel"""
     video_id = request.form.get('video_id', type=int)
     title = request.form.get('title', '').strip()
+    scan_code = request.form.get('scan_code', '').strip()
     keyword = request.form.get('keyword', '').strip()
     hint = request.form.get('hint', '').strip()
     filename = request.form.get('filename', '').strip()
@@ -365,6 +399,9 @@ def admin_edit_video(user_id):
     if title:
         updates.append('title = ?')
         params.append(title)
+    if scan_code:
+        updates.append('scan_code = ?')
+        params.append(scan_code)
     if keyword:
         updates.append('keyword = ?')
         params.append(keyword)
@@ -381,11 +418,14 @@ def admin_edit_video(user_id):
     params.append(video_id)
     query = f"UPDATE videos SET {', '.join(updates)} WHERE id = ?"
 
-    conn.execute(query, params)
-    conn.commit()
-    conn.close()
-
-    return jsonify({'success': True, 'message': 'Video updated successfully'})
+    try:
+        conn.execute(query, params)
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Video updated successfully'})
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({'success': False, 'error': 'Scan code must be unique'}), 400
 
 @app.route('/admin/reset-password', methods=['POST'])
 @admin_required

@@ -51,35 +51,41 @@ function onScanError(errorMessage) {
 }
 
 // Process the scanned QR code
-function processQRCode(qrContent) {
-    // Check if it's a video URL
-    // Expected formats:
-    // - Full URL: http://example.com/video?id=1
-    // - Relative URL: /video?id=1
-    // - Just the ID: 1
+async function processQRCode(qrContent) {
+    // QR code now contains just a scan code (e.g., "GACK_HEAD_7X9K2")
+    // Send to server for verification
 
-    let videoId = null;
+    showSuccess("Verifying evidence code...");
 
-    // Try to extract video ID from various formats
-    if (qrContent.includes('/video?id=')) {
-        const match = qrContent.match(/\/video\?id=(\d+)/);
-        if (match) {
-            videoId = match[1];
+    try {
+        const response = await fetch('/verify-scan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ code: qrContent.trim() })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Code verified, video marked as found
+            showSuccess("Evidence discovered! Accessing file...");
+            setTimeout(() => {
+                window.location.href = `/video?id=${result.video_id}`;
+            }, 1000);
+        } else {
+            // Invalid code
+            showError("Invalid evidence code. Scan a valid GACKfiles marker.");
+            // Restart scanner after 3 seconds
+            setTimeout(() => {
+                hideMessages();
+                initScanner();
+            }, 3000);
         }
-    } else if (qrContent.match(/^\d+$/)) {
-        // Just a number
-        videoId = qrContent;
-    }
-
-    if (videoId) {
-        // Redirect to video page
-        showSuccess("Video found! Redirecting...");
-        setTimeout(() => {
-            window.location.href = `/video?id=${videoId}`;
-        }, 1000);
-    } else {
-        // Invalid QR code
-        showError("Invalid QR code. This doesn't appear to be a video quest code.");
+    } catch (error) {
+        showError("Error verifying code. Please try again.");
+        console.error("Verification error:", error);
         // Restart scanner after 3 seconds
         setTimeout(() => {
             hideMessages();

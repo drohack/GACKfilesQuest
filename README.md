@@ -1,208 +1,188 @@
-# Video Quest - Mobile-Friendly QR Code Video Game
+# GACKfiles Quest - X-Files Themed Cryptid Investigation Game
 
-A self-contained Flask web application for running a QR code-based video quest game. Users scan QR codes to discover videos, then unlock them by entering keywords. Perfect for escape rooms, scavenger hunts, or educational games.
+A mobile-friendly Flask web application for running an X-Files inspired cryptid hunting experience. Agents scan evidence markers (QR codes) to discover video clues, analyze evidence, and solve cases. Features anti-sharing security, dark themed UI, and complete admin panel.
 
 ## Features
 
-- **QR Code Scanning**: Use device camera to scan QR codes and discover videos
+- **Secure QR Code System**: Static QR codes contain unique scan codes (not URLs) - prevents URL sharing
+- **Anti-Cheating Protection**: Users must physically scan QR codes to access videos
+- **X-Files Theme**: Dark, mysterious interface with green glow effects and cryptid silhouette
+- **Cryptid Anatomy Diagram**: Visual investigation board with body part evidence markers
+- **Web Admin Panel**: Manage all evidence and agents through browser interface
+- **CLI Admin Tools**: Command-line scripts for SSH management
 - **Video Hosting**: Locally hosted videos served through Flask
-- **Keyword Unlocking**: Videos must be unlocked with correct keywords
-- **Progress Tracking**: Track found, unlocked, and missing videos
-- **Mobile-Friendly**: Responsive design optimized for phones and tablets
-- **Session-Based Authentication**: Secure login with bcrypt password hashing
+- **Case Solving**: Watch evidence videos and enter solution codes
+- **Progress Tracking**: Visual cryptid diagram shows solved/found/undiscovered evidence
+- **Mobile-Optimized**: Responsive dark theme with touch-friendly controls
+- **HTTPS Support**: SSL certificate support for mobile camera access
+- **Session Authentication**: Secure login with bcrypt password hashing
 - **Single Container**: Everything runs in one Docker container
 - **Persistent Data**: Database and videos mounted from host
 
 ## Tech Stack
 
-- Python 3.11
-- Flask web framework
+- Python 3.11 + Flask
 - SQLite database (file-based)
 - Jinja2 templates
 - html5-qrcode library for QR scanning
 - bcrypt for password hashing
 - Docker & Docker Compose
+- HTTPS with self-signed certificates
 
-## Project Structure
+## Theme
 
-```
-.
-├── app/
-│   ├── app.py                 # Main Flask application
-│   ├── init_db.py            # Database initialization script
-│   ├── database.db           # SQLite database (created on first run)
-│   ├── templates/
-│   │   ├── login.html        # Login page
-│   │   ├── status.html       # Status/progress page
-│   │   ├── qrscan.html       # QR code scanner page
-│   │   └── video.html        # Video player and unlock page
-│   ├── static/
-│   │   ├── styles.css        # Mobile-friendly CSS
-│   │   └── qrscanner.js      # QR scanner logic
-│   └── videos/               # Video files directory (mounted)
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
-```
+**X-Files / Cryptid Hunter Aesthetic:**
+- Dark background with Matrix-green (#00ff41) accents
+- Courier New monospace font (government document style)
+- "CLASSIFIED" watermarks and glowing text effects
+- Paranormal investigation terminology
+- "The Truth Is Out There" tagline
 
 ## Quick Start
 
-### 1. Clone or Download This Project
-
-```bash
-git clone <repository-url>
-cd GACKfilesQuest-GACKcon2025
-```
-
-### 2. Initialize the Database
-
-Before starting the container, initialize the database with default user and sample videos:
+### 1. Initialize the Database
 
 ```bash
 cd app
 python init_db.py
 ```
 
-This creates:
-- Database tables
-- Default user (username: `admin`, password: `admin`)
-- Three sample video entries
+Creates:
+- Database with all tables
+- Admin user (username: `admin`, password: `admin`, is_admin: 1)
+- 5 cryptid body part evidence videos with scan codes
 
-**Important**: Change the default password after first login!
+### 2. Generate SSL Certificate (for mobile camera access)
+
+```bash
+openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -config openssl.cnf
+```
+
+Certificate enables HTTPS for camera access on mobile devices.
 
 ### 3. Add Your Videos
 
-Place your video files (MP4 format recommended) in the `app/videos/` directory:
-
 ```bash
-cp /path/to/your/video1.mp4 app/videos/
-cp /path/to/your/video2.mp4 app/videos/
+cp /path/to/videos/*.mp4 app/videos/
 ```
 
-Make sure the filenames match those in the database.
+Filename must match database entries:
+- head.mp4, claws.mp4, body.mp4, feet.mp4, tail.mp4
 
-### 4. Build and Run the Container
+### 4. Start the Container
 
 ```bash
 docker-compose up -d
 ```
 
-This will:
-- Build the Docker image
-- Start the container
-- Mount the database and videos directory
-- Expose the application on port 8080
-
 ### 5. Access the Application
 
-Open a web browser and navigate to:
+**Main Site:** `https://YOUR_IP:57823`
 
-```
-http://localhost:8080
-```
+**Login:** admin / admin
 
-Or from another device on the same network:
+Accept the self-signed certificate warning on first visit.
 
-```
-http://<server-ip>:8080
-```
+## How It Works
 
-Login with:
-- **Username**: admin
-- **Password**: admin
+### Security Model (Anti-Sharing)
 
-## Usage Guide
+**QR Codes Contain:** Just scan codes (e.g., `GACK_HEAD_7X9K2`) - NOT URLs
 
-### Login Flow
+**Scanning Process:**
+1. User scans QR code with in-app scanner
+2. Third-party scanners show meaningless text (useless)
+3. In-app scanner sends code to server via `/verify-scan`
+4. Server validates code and marks video as "found" for that user
+5. Server returns video ID
+6. User redirects to `/video?id=1`
 
-1. Navigate to the application URL
-2. Enter username and password
-3. Click "Login"
-4. Redirected to Status page on success
+**Sharing Prevention:**
+- Direct video URL access checks if user has "found" the video
+- If not found: Shows "NO CHEATING" error page
+- If found: Shows video and case analysis form
+- Users MUST scan QR codes themselves - can't share URLs
 
-### Status Page
+**Result:** Static QR codes, but URL sharing doesn't work!
 
-Shows three categories of videos:
+### Game Flow
 
-- **Unlocked Videos**: Videos you've found and unlocked (green)
-- **Found Videos**: Videos you've scanned but not unlocked yet (yellow)
-- **Missing Videos**: Videos you haven't found yet, with hints (gray)
+1. **Login** → Agent Access Portal
+2. **Field Reports** → Visual cryptid diagram with 5 body parts
+3. **Scan Evidence** → Camera scanner reads QR codes
+4. **Investigate** → Watch evidence video
+5. **Submit Solution** → Enter keyword to solve case
+6. **Case Closed** → Evidence marked as solved
 
-Buttons:
-- **Scan QR Code**: Opens the QR scanner
-- **Logout**: Ends your session
+### Cryptid Anatomy Diagram
 
-### Scanning QR Codes
+Central cryptid silhouette with 5 evidence markers:
+- **HEAD** (top) - connects to head
+- **CLAWS** (left, top) - connects to claws
+- **TAIL** (left, bottom) - connects to tail
+- **BODY** (right) - connects to torso
+- **FEET** (bottom) - connects to feet
 
-1. Click "Scan QR Code" from the Status page
-2. Grant camera permissions when prompted
-3. Point camera at a QR code
-4. When recognized, automatically redirects to the video page
+Each marker shows:
+- Status icon (?, 📂, or ✓)
+- Title
+- Found/Solved status
+- Investigate/Review button (when found)
+- Hint text (when not found)
 
-QR codes should contain:
-- Full URL: `http://your-server:8080/video?id=1`
-- Relative URL: `/video?id=1`
-- Just the ID: `1`
+Connecting lines point from markers to body parts with color coding:
+- Gray: Not found
+- Orange: Found but not solved
+- Green: Solved
 
-### Video Page
+## Admin Panel
 
-When you visit a video (by scanning or clicking from Status):
+**Access:** `https://YOUR_IP:57823/admin` (admin users only)
 
-**If Not Unlocked:**
-- Shows a locked icon
-- Displays an unlock form
-- Enter the correct keyword to unlock
-- Video automatically marks as "found"
+### Evidence Management
+- View all videos in table format
+- Edit titles, keywords, hints, scan codes, filenames
+- Inline editing forms
+- Real-time updates
 
-**If Unlocked:**
-- Shows success banner
-- Video player displays with controls
-- Can watch the video
+### Agent Management
+- View all users with admin status
+- Reset any user's password
+- Compact mobile-friendly table
 
-### Unlocking Videos
-
-1. Navigate to a found video
-2. Enter the keyword in the unlock form
-3. Click "Unlock Video"
-4. If correct: video unlocks and page reloads
-5. If incorrect: error message displays
-
-Keywords are case-insensitive.
+### Features
+- Click "Edit" to expand inline form
+- Changes apply immediately
+- Success/error messages
+- No container restart needed
 
 ## Database Management
 
-### Add a New User
+All commands run from the `app/` directory. Changes apply instantly - just refresh browser!
+
+### List Everything
 
 ```bash
 cd app
-python init_db.py add-user <username> <password>
+python init_db.py list-videos    # Shows all videos with scan codes
+python init_db.py list-users     # Shows all users with admin status
+```
+
+### Add New Video
+
+```bash
+python init_db.py add-video <filename> <title> <keyword> <scan_code> [hint]
 ```
 
 Example:
 ```bash
-python init_db.py add-user player1 secretpass123
+python init_db.py add-video skull.mp4 "SKULL" bones GACK_SKULL_X9Z2 "Check the basement"
 ```
 
-### Add a New Video
+### Edit Video
 
 ```bash
-cd app
-python init_db.py add-video <filename> <title> <keyword> [hint]
-```
-
-Example:
-```bash
-python init_db.py add-video challenge1.mp4 "First Challenge" "secret123" "Look behind the painting"
-```
-
-### Edit Video Details
-
-Change any video property without recreating it:
-
-```bash
-cd app
-python init_db.py edit-video <id> [title] [keyword] [hint] [filename]
+python init_db.py edit-video <id> [title] [keyword] [hint] [scan_code] [filename]
 ```
 
 Examples:
@@ -213,263 +193,255 @@ python init_db.py edit-video 1 "Skull Fragment"
 # Edit title and keyword
 python init_db.py edit-video 2 "Claw Marks" sharptalons
 
-# Edit title, keyword, and hint
-python init_db.py edit-video 3 "Torso Evidence" centralmass "Found in the main hall"
+# Edit hint and scan code
+python init_db.py edit-video 3 '' '' 'New hint' GACK_NEW_CODE
 
-# Edit only the hint (use empty strings to skip fields)
-python init_db.py edit-video 4 '' '' "New hint here"
-
-# Change the video filename
-python init_db.py edit-video 5 '' '' '' newtail.mp4
+# Edit everything
+python init_db.py edit-video 4 "Foot Print" tracks "Found outside" GACK_FEET_NEW foot.mp4
 ```
 
-**Note**: Changes take effect immediately - just refresh the browser. No container restart needed!
+**Use empty strings (`''`) to skip fields you don't want to change.**
 
 ### Reset User Password
 
-Reset any user's password as admin:
-
 ```bash
-cd app
 python init_db.py reset-password <username> <new_password>
 ```
 
 Examples:
 ```bash
-# Reset admin password
-python init_db.py reset-password admin mynewpassword
-
-# Reset any user password
+python init_db.py reset-password admin mynewpass
 python init_db.py reset-password player1 resetpass123
 ```
 
-### List All Data
-
-View current database contents:
+### Add New User
 
 ```bash
-cd app
-python init_db.py list-videos    # Shows all videos with IDs, titles, keywords, hints
-python init_db.py list-users     # Shows all users with IDs
+python init_db.py add-user <username> <password>
 ```
 
-### Direct Database Access
-
-Use SQLite command-line tool or any SQLite browser:
-
+Example:
 ```bash
-sqlite3 app/database.db
+python init_db.py add-user player2 secretpass
 ```
 
-Useful queries:
-
-```sql
--- View all users
-SELECT * FROM users;
-
--- View all videos
-SELECT * FROM videos;
-
--- View user progress
-SELECT u.username, v.title, f.found_at, ul.unlocked_at
-FROM users u
-LEFT JOIN found f ON u.id = f.user_id
-LEFT JOIN videos v ON f.video_id = v.id
-LEFT JOIN unlocks ul ON u.id = ul.user_id AND v.id = ul.video_id;
-
--- Reset a user's progress
-DELETE FROM found WHERE user_id = 1;
-DELETE FROM unlocks WHERE user_id = 1;
-```
+**Note:** New users are NOT admins by default. Use SQL to set `is_admin=1` if needed.
 
 ## Creating QR Codes
 
-You can create QR codes using any QR code generator. The QR code should contain one of:
+QR codes must contain only the scan code (not URLs)!
 
-1. **Full URL**: `http://192.168.1.100:8080/video?id=1`
-2. **Relative URL**: `/video?id=1`
-3. **Just the ID**: `1`
+### Current Scan Codes
 
-### Online QR Code Generators
+- **HEAD**: `GACK_HEAD_7X9K2`
+- **CLAWS**: `GACK_CLAW_4M8N1`
+- **BODY**: `GACK_BODY_3P5L6`
+- **FEET**: `GACK_FEET_9R2T4`
+- **TAIL**: `GACK_TAIL_6Q1W8`
 
+### Generate QR Codes
+
+Use any QR code generator with **just the scan code as text**:
+
+**Online Generators:**
 - [QR Code Generator](https://www.qr-code-generator.com/)
 - [QR Code Monkey](https://www.qrcode-monkey.com/)
-- [goQR.me](https://goqr.me/)
 
-### Command-Line QR Code Generation
+**Enter:** `GACK_HEAD_7X9K2` (not a URL!)
 
-Using `qrencode`:
-
+**Command Line:**
 ```bash
 # Install qrencode
-sudo apt-get install qrencode  # Debian/Ubuntu
-brew install qrencode           # macOS
+sudo apt-get install qrencode  # Linux
+brew install qrencode           # Mac
 
-# Generate QR code
-qrencode -o video1-qr.png "http://192.168.1.100:8080/video?id=1"
+# Generate QR codes
+qrencode -o head-qr.png "GACK_HEAD_7X9K2"
+qrencode -o claws-qr.png "GACK_CLAW_4M8N1"
+qrencode -o body-qr.png "GACK_BODY_3P5L6"
+qrencode -o feet-qr.png "GACK_FEET_9R2T4"
+qrencode -o tail-qr.png "GACK_TAIL_6Q1W8"
 ```
 
-## Docker Management
+**Important:** Third-party QR scanners will show useless text. Only the in-app scanner validates codes with the server!
 
-### View Logs
+## Security Features
 
-```bash
-docker-compose logs -f
-```
+### Anti-Sharing System
 
-### Restart Container
+**Problem Solved:** Users can't share video URLs to bypass QR code hunting.
 
-```bash
-docker-compose restart
-```
+**How It Works:**
+1. QR codes contain scan codes, not URLs
+2. Must use in-app scanner (third-party scanners are useless)
+3. Server validates code and marks as "found"
+4. Direct video URL access checks "found" status
+5. No found record = "NO CHEATING" error page
 
-### Stop Container
+**Benefits:**
+- Static QR codes (never change)
+- Can't bypass by sharing URLs
+- Must physically find and scan each QR code
+- Tracks legitimate discoveries per user
 
-```bash
-docker-compose down
-```
+### Admin Access Control
 
-### Rebuild After Changes
-
-```bash
-docker-compose up -d --build
-```
-
-### Access Container Shell
-
-```bash
-docker exec -it video-quest /bin/bash
-```
-
-## Deployment on Unraid
-
-1. **Create Directories**:
-   ```bash
-   mkdir -p /mnt/user/appdata/video-quest/app/videos
-   ```
-
-2. **Copy Files**:
-   ```bash
-   # Copy all project files to Unraid
-   cp -r GACKfilesQuest-GACKcon2025/* /mnt/user/appdata/video-quest/
-   ```
-
-3. **Initialize Database**:
-   ```bash
-   cd /mnt/user/appdata/video-quest/app
-   python init_db.py
-   ```
-
-4. **Add Videos**:
-   ```bash
-   cp /path/to/videos/*.mp4 /mnt/user/appdata/video-quest/app/videos/
-   ```
-
-5. **Update docker-compose.yml** (if needed):
-   ```yaml
-   volumes:
-     - /mnt/user/appdata/video-quest/app/database.db:/app/database.db
-     - /mnt/user/appdata/video-quest/app/videos:/app/videos
-   ```
-
-6. **Start Container**:
-   ```bash
-   cd /mnt/user/appdata/video-quest
-   docker-compose up -d
-   ```
+- `is_admin` field in users table
+- Admin-only routes protected by `@admin_required` decorator
+- Non-admins get 403 error
+- Default admin user created during init
 
 ## Configuration
 
 ### Change Port
 
 Edit `docker-compose.yml`:
-
 ```yaml
 ports:
-  - "9090:8080"  # Change left number (host port)
+  - "9090:8080"  # Change 57823 to desired port
 ```
 
 ### Session Expiry
 
 Edit `app/app.py`:
-
 ```python
-app.config['SESSION_EXPIRY_HOURS'] = 48  # Change from 24 to 48 hours
+app.config['SESSION_EXPIRY_HOURS'] = 48  # Default is 24
 ```
 
-### Video Upload Limits
+### Customize Scan Codes
 
-By default, Flask has a 16MB upload limit. To serve larger videos, they should be pre-loaded into the videos directory rather than uploaded through the app.
+Edit codes in admin panel or via CLI:
+```bash
+python app/init_db.py edit-video 1 '' '' '' CUSTOM_CODE_HERE
+```
 
-## Security Considerations
+Scan codes must be unique!
 
-### For LAN-Only Use
+## Docker Management
 
-This application is designed for local network use only:
+```bash
+# View logs
+docker-compose logs -f
 
-- Cookies use `Secure=False` (no HTTPS required)
-- Default credentials should be changed
-- No rate limiting on login attempts
-- Session tokens stored in database
+# Restart
+docker-compose restart
 
-### If Exposing to Internet
+# Stop
+docker-compose down
 
-**Not recommended**, but if you must:
+# Rebuild after code changes
+docker-compose up -d --build
 
-1. Use a reverse proxy with HTTPS (nginx, Caddy)
-2. Set `Secure=True` for cookies
-3. Add rate limiting
-4. Use strong passwords
-5. Consider adding CAPTCHA to login
-6. Enable CORS protection
+# Access container shell
+docker exec -it video-quest /bin/bash
+```
+
+## Deployment on Unraid
+
+### Setup
+
+1. Create directory:
+```bash
+mkdir -p /mnt/user/appdata/gackfiles-quest
+```
+
+2. Copy project files:
+```bash
+scp -r GACKfilesQuest-GACKcon2025/* root@UNRAID_IP:/mnt/user/appdata/gackfiles-quest/
+```
+
+3. Initialize:
+```bash
+ssh root@UNRAID_IP
+cd /mnt/user/appdata/gackfiles-quest/app
+python3 init_db.py
+```
+
+4. Generate certificate:
+```bash
+cd /mnt/user/appdata/gackfiles-quest
+openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -config openssl.cnf
+```
+
+5. Add videos:
+```bash
+cp /mnt/user/videos/*.mp4 /mnt/user/appdata/gackfiles-quest/app/videos/
+```
+
+6. Start:
+```bash
+docker-compose up -d
+```
+
+### Access
+
+From any device on the network:
+```
+https://UNRAID_IP:57823
+```
 
 ## Troubleshooting
 
 ### Camera Not Working
 
-- **Check Permissions**: Ensure browser has camera access
-- **HTTPS Required**: Some browsers require HTTPS for camera access
-  - Use a reverse proxy with SSL
-  - Or add exception for local IP
-- **Try Different Browser**: Chrome/Safari have better camera support
+**Issue:** "Unable to access camera" on mobile
+
+**Solutions:**
+1. Ensure accessing via HTTPS (https://)
+2. Accept self-signed certificate warning
+3. Grant camera permissions when prompted
+4. Try Chrome/Safari (best support)
+5. Check HTTPS_SETUP.md for certificate installation
+
+### "NO CHEATING" Error Page
+
+**Issue:** Can't access video even though you scanned it
+
+**Solutions:**
+1. Make sure you scanned with the in-app scanner (not third-party)
+2. Check if scan was successful ("Evidence discovered!")
+3. Verify you're logged in as the correct user
+4. Try scanning again
 
 ### Videos Won't Play
 
-- **Check Format**: Use MP4 with H.264 codec
-- **Check File Location**: Ensure videos are in `app/videos/` directory
-- **Check Permissions**: Container must have read access
-- **Check Filename**: Must match database entry exactly
+**Solutions:**
+1. Verify video files exist in `app/videos/`
+2. Check filenames match database exactly
+3. Use MP4 format with H.264 codec
+4. Check file permissions
+5. View browser console for errors
+
+### Admin Panel Shows 403 Error
+
+**Solution:** Login as admin user (is_admin=1)
+
+To check admin status:
+```bash
+sqlite3 app/database.db
+SELECT username, is_admin FROM users;
+```
+
+To make user admin:
+```bash
+sqlite3 app/database.db
+UPDATE users SET is_admin=1 WHERE username='admin';
+```
 
 ### Database Locked Error
 
-- Only one connection can write at a time
-- Usually resolves itself
-- If persistent, restart container:
-  ```bash
-  docker-compose restart
-  ```
+**Solution:** Restart container
+```bash
+docker-compose restart
+```
 
 ### Port Already in Use
 
-Change the host port in `docker-compose.yml`:
-
+**Solution:** Change port in docker-compose.yml
 ```yaml
 ports:
-  - "8081:8080"
+  - "8080:8080"  # Change left number
 ```
-
-### Container Won't Start
-
-Check logs:
-```bash
-docker-compose logs
-```
-
-Common issues:
-- Database file permissions
-- Videos directory missing
-- Port conflict
-- Python dependency issues
 
 ## Backup and Restore
 
@@ -480,7 +452,6 @@ cp app/database.db app/database.db.backup
 ```
 
 Or use SQLite dump:
-
 ```bash
 sqlite3 app/database.db .dump > backup.sql
 ```
@@ -489,24 +460,145 @@ sqlite3 app/database.db .dump > backup.sql
 
 ```bash
 cp app/database.db.backup app/database.db
+docker-compose restart
 ```
 
-Or from SQL dump:
+### Reset User Progress
 
 ```bash
-sqlite3 app/database.db < backup.sql
+sqlite3 app/database.db
+DELETE FROM found WHERE user_id = 1;
+DELETE FROM unlocks WHERE user_id = 1;
 ```
 
-### Backup Videos
+## Database Schema
+
+### Tables
+
+**users**
+- id, username, password_hash, is_admin
+
+**sessions**
+- token, user_id, expires_at
+
+**videos**
+- id, filename, title, keyword, hint, scan_code
+
+**found**
+- id, user_id, video_id, found_at
+
+**unlocks**
+- id, user_id, video_id, unlocked_at
+
+## Advanced Usage
+
+### Direct Database Access
 
 ```bash
-tar -czf videos-backup.tar.gz app/videos/
+sqlite3 app/database.db
 ```
 
-## License
+Useful queries:
+```sql
+-- View all scan codes
+SELECT id, title, scan_code FROM videos;
 
-This project is provided as-is for educational and entertainment purposes.
+-- View user progress
+SELECT u.username, v.title, f.found_at, ul.unlocked_at
+FROM users u
+LEFT JOIN found f ON u.id = f.user_id
+LEFT JOIN videos v ON f.video_id = v.id
+LEFT JOIN unlocks ul ON u.id = ul.user_id AND v.id = ul.video_id;
+
+-- Reset all progress
+DELETE FROM found;
+DELETE FROM unlocks;
+
+-- Make user admin
+UPDATE users SET is_admin=1 WHERE username='player1';
+```
+
+### Custom Scan Codes
+
+Generate unique codes for your QR codes:
+```bash
+# Random alphanumeric
+echo "GACK_$(head /dev/urandom | tr -dc A-Z0-9 | head -c 10)"
+# Example output: GACK_X7K9M2P4L1
+```
+
+Then update via admin panel or CLI:
+```bash
+python init_db.py edit-video 1 '' '' '' GACK_CUSTOM_CODE
+```
+
+## Terminology Reference
+
+| Old Term | GACKfiles Term |
+|----------|----------------|
+| Video Quest | GACKfiles |
+| Status Page | Field Reports |
+| Videos | Evidence Files |
+| Challenges | Cases |
+| QR Code | Evidence Marker |
+| Unlock | Solve Case |
+| Found | Discovered |
+| Completed | Solved |
+| Keyword | Solution Code |
+| Login | Agent Access Portal |
+| Username | Agent ID |
+
+## File Structure
+
+```
+GACKfilesQuest-GACKcon2025/
+├── app/
+│   ├── app.py                    # Main Flask application
+│   ├── init_db.py               # Database initialization & CLI tools
+│   ├── database.db              # SQLite database (mounted)
+│   ├── templates/
+│   │   ├── login.html           # Agent access portal
+│   │   ├── status.html          # Cryptid diagram & field reports
+│   │   ├── qrscan.html          # Evidence scanner
+│   │   ├── video.html           # Evidence viewer & case analysis
+│   │   ├── admin.html           # Admin management panel
+│   │   └── no_access.html       # Anti-cheating error page
+│   ├── static/
+│   │   ├── styles.css           # X-Files dark theme
+│   │   └── qrscanner.js         # QR scanner logic
+│   └── videos/                  # Video files directory (mounted)
+├── Dockerfile                   # Container build configuration
+├── docker-compose.yml           # Port 57823, volume mounts
+├── requirements.txt             # Python dependencies
+├── cert.pem / key.pem          # SSL certificates (generated)
+├── openssl.cnf                  # SSL config
+├── README.md                    # This file
+├── SETUP_GUIDE.md              # Detailed setup instructions
+├── HTTPS_SETUP.md              # HTTPS configuration guide
+├── generate_qrcodes.py         # QR code generator utility
+├── start.sh / start.bat        # Quick start scripts
+└── .gitignore                   # Git exclusions
+```
+
+## Current Evidence (Default)
+
+| Body Part | Scan Code | Keyword | Video File |
+|-----------|-----------|---------|------------|
+| HEAD | GACK_HEAD_7X9K2 | cranium | head.mp4 |
+| CLAWS | GACK_CLAW_4M8N1 | talons | claws.mp4 |
+| BODY | GACK_BODY_3P5L6 | torso | body.mp4 |
+| FEET | GACK_FEET_9R2T4 | limbs | feet.mp4 |
+| TAIL | GACK_TAIL_6Q1W8 | appendage | tail.mp4 |
 
 ## Support
 
-For issues, questions, or contributions, please open an issue on the project repository.
+For HTTPS setup, see `HTTPS_SETUP.md`
+For detailed setup, see `SETUP_GUIDE.md`
+
+## License
+
+Provided as-is for educational and entertainment purposes.
+
+---
+
+**"The Truth Is Out There... But You Have To Find It Yourself"**
