@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - GACKfiles Quest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>GACKfiles</h1>
+            <h2>New Agent Registration</h2>
+            <p style="text-align: center; color: #00ff41; margin-bottom: 20px; font-style: italic; font-size: 14px;">Join The Investigation</p>
+
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <label for="username">Agent ID</label>
+                    <input type="text" id="username" name="username" placeholder="Enter agent identifier" minlength="3" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Access Code</label>
+                    <input type="password" id="password" name="password" placeholder="Enter classified code" minlength="4" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirm">Confirm Access Code</label>
+                    <input type="password" id="password_confirm" name="password_confirm" placeholder="Re-enter classified code" minlength="4" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register Agent</button>
+
+                <p style="text-align: center; margin-top: 20px; color: #888; font-size: 13px;">
+                    Already registered? <a href="{{ url_for('login') }}" style="color: #00ff41; text-decoration: none;">Access Files</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

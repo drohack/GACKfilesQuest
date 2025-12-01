@@ -20,8 +20,8 @@
         </div>
 
         <div class="cryptid-container">
-            <h2 class="cryptid-title">TARGET: UNKNOWN CRYPTID</h2>
-            <p class="cryptid-subtitle">Collect evidence from each body part to complete the investigation</p>
+            <h2 class="cryptid-title">TARGET: {% if all_solved %}GACKSQUATCH{% else %}UNKNOWN CRYPTID{% endif %}</h2>
+            <p class="cryptid-subtitle">{% if all_solved %}SPECIES IDENTIFIED - Case Closed{% else %}Collect evidence from each body part to complete the investigation{% endif %}</p>
 
             <div class="cryptid-diagram">
                 <!-- Central cryptid silhouette -->
@@ -48,7 +48,7 @@
                             <span class="marker-icon">
                                 {% if solved %}✓{% elif found %}📂{% else %}?{% endif %}
                             </span>
-                            <h3>{{ video.title }}</h3>
+                            <h3>{% if solved %}{{ video.title }}{% else %}???{% endif %}</h3>
                         </div>
                         <div class="marker-info">
                             {% if solved %}

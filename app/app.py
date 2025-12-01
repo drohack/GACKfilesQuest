@@ -183,6 +183,53 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Registration page and handler"""
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        password_confirm = request.form.get('password_confirm', '')
+
+        # Validation
+        if not username or not password:
+            return render_template('register.html', error='Username and password are required')
+
+        if len(username) < 3:
+            return render_template('register.html', error='Username must be at least 3 characters')
+
+        if len(password) < 4:
+            return render_template('register.html', error='Password must be at least 4 characters')
+
+        if password != password_confirm:
+            return render_template('register.html', error='Passwords do not match')
+
+        # Create user
+        conn = get_db_connection()
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        try:
+            conn.execute('INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)',
+                        (username, password_hash, 0))
+            conn.commit()
+            conn.close()
+
+            # Auto-login after registration
+            conn = get_db_connection()
+            user = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+            conn.close()
+
+            token = create_session(user['id'])
+            response = make_response(redirect(url_for('status')))
+            response.set_cookie('session', token, httponly=True, samesite='Lax', max_age=app.config['SESSION_EXPIRY_HOURS']*3600)
+            return response
+
+        except sqlite3.IntegrityError:
+            conn.close()
+            return render_template('register.html', error='Username already exists')
+
+    return render_template('register.html')
+
 @app.route('/logout')
 def logout():
     """Logout handler"""
@@ -226,12 +273,16 @@ def status(user_id):
     found_count = sum(1 for v in videos_list if v['found_at'])
     unlocked_count = sum(1 for v in videos_list if v['unlocked_at'])
 
+    # Check if all videos are unlocked (cryptid identified)
+    all_solved = (unlocked_count == total_count and total_count > 0)
+
     return render_template('status.html',
                          videos=videos_list,
                          total_count=total_count,
                          found_count=found_count,
                          unlocked_count=unlocked_count,
-                         is_admin=is_admin)
+                         is_admin=is_admin,
+                         all_solved=all_solved)
 
 @app.route('/qrscan')
 @login_required
