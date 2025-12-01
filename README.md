@@ -328,6 +328,49 @@ docker-compose up -d --build
 docker exec -it video-quest /bin/bash
 ```
 
+## Updating the Application
+
+### Update on Unraid (Preserves Database)
+
+Pull latest changes from GitHub and rebuild while keeping all user data:
+
+```bash
+# SSH into Unraid
+ssh root@YOUR_UNRAID_IP
+
+# Navigate to app directory
+cd /mnt/user/appdata/gackfiles-quest
+
+# Pull latest code from GitHub
+git pull
+
+# Rebuild and restart container
+docker-compose down
+docker-compose up -d --build
+
+# Verify it's running
+docker-compose logs --tail 20
+```
+
+**Your data is safe!** The update only affects code files:
+- `app/database.db` is preserved (in .gitignore)
+- All user accounts, progress, and settings remain intact
+- Video files stay in place
+- Same login credentials
+
+**After update:** Access at your normal URL with existing credentials.
+
+### Update Locally (Development)
+
+```bash
+# Pull latest changes
+git pull
+
+# Rebuild container
+docker-compose down
+docker-compose up -d --build
+```
+
 ## Deployment on Unraid
 
 ### Setup
@@ -372,6 +415,24 @@ http://UNRAID_IP:57823
 
 **External (Internet):**
 Set up Nginx Proxy Manager to handle SSL and domain routing. The app runs on HTTP internally, NPM provides HTTPS externally.
+
+## Reverse Proxy Setup (Nginx Proxy Manager)
+
+For public internet access with proper SSL:
+
+**In NPM:**
+- **Scheme:** http
+- **Forward Hostname/IP:** Your Unraid/server IP (e.g., 192.168.1.2)
+- **Forward Port:** 57823
+- **SSL:** Request Let's Encrypt certificate
+- **Force SSL:** Enabled
+- **Websockets:** Enabled
+
+**Domain DNS:** Point your domain A record to your public IP in your DNS provider.
+
+**Router:** Forward ports 80 and 443 to your NPM server.
+
+That's it! NPM handles SSL termination, the app serves HTTP internally.
 
 ## Troubleshooting
 
@@ -563,14 +624,10 @@ GACKfilesQuest-GACKcon2025/
 ├── Dockerfile                   # Container build configuration
 ├── docker-compose.yml           # Port 57823, volume mounts
 ├── requirements.txt             # Python dependencies
-├── cert.pem / key.pem          # SSL certificates (generated)
-├── openssl.cnf                  # SSL config
-├── README.md                    # This file
-├── SETUP_GUIDE.md              # Detailed setup instructions
-├── HTTPS_SETUP.md              # HTTPS configuration guide
-├── generate_qrcodes.py         # QR code generator utility
+├── README.md                    # Complete documentation
 ├── start.sh / start.bat        # Quick start scripts
-└── .gitignore                   # Git exclusions
+├── .gitignore                   # Git exclusions
+└── .env.example                 # Environment variables template
 ```
 
 ## Current Evidence (Default)
@@ -585,8 +642,10 @@ GACKfilesQuest-GACKcon2025/
 
 ## Support
 
-For HTTPS setup, see `HTTPS_SETUP.md`
-For detailed setup, see `SETUP_GUIDE.md`
+For issues or questions:
+- Check the Troubleshooting section above
+- Review database management commands
+- Check Docker logs: `docker-compose logs`
 
 ## License
 
