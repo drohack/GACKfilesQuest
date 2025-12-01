@@ -11,9 +11,6 @@ services:
       - ./app/database.db:/app/database.db
       # Mount videos directory from host
       - ./app/videos:/app/videos
-      # Mount SSL certificates for HTTPS
-      - ./cert.pem:/app/cert.pem
-      - ./key.pem:/app/key.pem
     restart: always
     environment:
       - TZ=UTC

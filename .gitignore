@@ -49,3 +49,7 @@ docker-volumes/
 
 # Backups
 backup/
+
+# SSL Certificates (handled by reverse proxy)
+*.pem
+openssl.cnf

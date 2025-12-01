@@ -52,15 +52,7 @@ Creates:
 - Admin user (username: `admin`, password: `admin`, is_admin: 1)
 - 5 cryptid body part evidence videos with scan codes
 
-### 2. Generate SSL Certificate (for mobile camera access)
-
-```bash
-openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -config openssl.cnf
-```
-
-Certificate enables HTTPS for camera access on mobile devices.
-
-### 3. Add Your Videos
+### 2. Add Your Videos
 
 ```bash
 cp /path/to/videos/*.mp4 app/videos/
@@ -69,19 +61,19 @@ cp /path/to/videos/*.mp4 app/videos/
 Filename must match database entries:
 - head.mp4, claws.mp4, body.mp4, feet.mp4, tail.mp4
 
-### 4. Start the Container
+### 3. Start the Container
 
 ```bash
 docker-compose up -d
 ```
 
-### 5. Access the Application
+### 4. Access the Application
 
-**Main Site:** `https://YOUR_IP:57823`
+**Main Site:** `http://YOUR_IP:57823`
 
 **Login:** admin / admin
 
-Accept the self-signed certificate warning on first visit.
+**Note:** For HTTPS access and public internet exposure, use a reverse proxy like Nginx Proxy Manager.
 
 ## How It Works
 
@@ -350,35 +342,36 @@ mkdir -p /mnt/user/appdata/gackfiles-quest
 scp -r GACKfilesQuest-GACKcon2025/* root@UNRAID_IP:/mnt/user/appdata/gackfiles-quest/
 ```
 
-3. Initialize:
+3. Initialize database:
 ```bash
 ssh root@UNRAID_IP
-cd /mnt/user/appdata/gackfiles-quest/app
-python3 init_db.py
-```
-
-4. Generate certificate:
-```bash
 cd /mnt/user/appdata/gackfiles-quest
-openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -config openssl.cnf
+
+# Create empty database file
+touch app/database.db
+chmod 666 app/database.db
+
+# Start container
+docker-compose up -d
+
+# Initialize database inside container
+docker exec -it video-quest python init_db.py
 ```
 
-5. Add videos:
+4. Add videos:
 ```bash
 cp /mnt/user/videos/*.mp4 /mnt/user/appdata/gackfiles-quest/app/videos/
 ```
 
-6. Start:
-```bash
-docker-compose up -d
-```
-
 ### Access
 
-From any device on the network:
+**Internal (LAN):**
 ```
-https://UNRAID_IP:57823
+http://UNRAID_IP:57823
 ```
+
+**External (Internet):**
+Set up Nginx Proxy Manager to handle SSL and domain routing. The app runs on HTTP internally, NPM provides HTTPS externally.
 
 ## Troubleshooting
 
@@ -387,11 +380,11 @@ https://UNRAID_IP:57823
 **Issue:** "Unable to access camera" on mobile
 
 **Solutions:**
-1. Ensure accessing via HTTPS (https://)
-2. Accept self-signed certificate warning
-3. Grant camera permissions when prompted
-4. Try Chrome/Safari (best support)
-5. Check HTTPS_SETUP.md for certificate installation
+1. Ensure accessing via HTTPS (use reverse proxy like NPM)
+2. Grant camera permissions when prompted
+3. Try Chrome/Safari (best camera API support)
+4. Check that you're using a valid SSL certificate (Let's Encrypt via NPM)
+5. Mobile browsers require HTTPS for camera access
 
 ### "NO CHEATING" Error Page
 
