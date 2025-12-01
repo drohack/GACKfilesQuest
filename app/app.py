@@ -128,6 +128,26 @@ def login_required(f):
         return f(user_id, *args, **kwargs)
     return decorated_function
 
+def admin_required(f):
+    """Decorator to require admin access for routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get('session')
+        user_id = get_user_from_session(token)
+        if not user_id:
+            return redirect(url_for('login'))
+
+        # Check if user is admin
+        conn = get_db_connection()
+        user = conn.execute('SELECT is_admin FROM users WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+
+        if not user or not user['is_admin']:
+            return "Access denied - Admin only", 403
+
+        return f(user_id, *args, **kwargs)
+    return decorated_function
+
 # Routes
 @app.route('/')
 def index():
@@ -180,6 +200,10 @@ def status(user_id):
     """Status page showing found, unlocked, and missing videos"""
     conn = get_db_connection()
 
+    # Check if user is admin
+    user = conn.execute('SELECT is_admin FROM users WHERE id = ?', (user_id,)).fetchone()
+    is_admin = user['is_admin'] if user else 0
+
     # Get all videos with found and unlocked status
     videos = conn.execute('''
         SELECT
@@ -206,7 +230,8 @@ def status(user_id):
                          videos=videos_list,
                          total_count=total_count,
                          found_count=found_count,
-                         unlocked_count=unlocked_count)
+                         unlocked_count=unlocked_count,
+                         is_admin=is_admin)
 
 @app.route('/qrscan')
 @login_required
@@ -299,6 +324,95 @@ def download_cert():
                                    as_attachment=True,
                                    download_name='video-quest.pem')
     return "Certificate not found", 404
+
+@app.route('/admin')
+@admin_required
+def admin(user_id):
+    """Admin panel for managing videos and users"""
+    conn = get_db_connection()
+
+    # Get all videos
+    videos = conn.execute('SELECT * FROM videos ORDER BY id').fetchall()
+
+    # Get all users
+    users = conn.execute('SELECT id, username, is_admin FROM users ORDER BY id').fetchall()
+
+    conn.close()
+
+    return render_template('admin.html',
+                         videos=[dict(v) for v in videos],
+                         users=[dict(u) for u in users])
+
+@app.route('/admin/edit-video', methods=['POST'])
+@admin_required
+def admin_edit_video(user_id):
+    """Handle video edit from admin panel"""
+    video_id = request.form.get('video_id', type=int)
+    title = request.form.get('title', '').strip()
+    keyword = request.form.get('keyword', '').strip()
+    hint = request.form.get('hint', '').strip()
+    filename = request.form.get('filename', '').strip()
+
+    if not video_id:
+        return jsonify({'success': False, 'error': 'Video ID required'}), 400
+
+    conn = get_db_connection()
+
+    # Build update query dynamically based on provided fields
+    updates = []
+    params = []
+
+    if title:
+        updates.append('title = ?')
+        params.append(title)
+    if keyword:
+        updates.append('keyword = ?')
+        params.append(keyword)
+    if hint:
+        updates.append('hint = ?')
+        params.append(hint)
+    if filename:
+        updates.append('filename = ?')
+        params.append(filename)
+
+    if not updates:
+        return jsonify({'success': False, 'error': 'No fields to update'}), 400
+
+    params.append(video_id)
+    query = f"UPDATE videos SET {', '.join(updates)} WHERE id = ?"
+
+    conn.execute(query, params)
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'message': 'Video updated successfully'})
+
+@app.route('/admin/reset-password', methods=['POST'])
+@admin_required
+def admin_reset_password(user_id):
+    """Handle password reset from admin panel"""
+    username = request.form.get('username', '').strip()
+    new_password = request.form.get('new_password', '').strip()
+
+    if not username or not new_password:
+        return jsonify({'success': False, 'error': 'Username and password required'}), 400
+
+    conn = get_db_connection()
+
+    # Check if user exists
+    user = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    # Hash and update password
+    password_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    conn.execute('UPDATE users SET password_hash = ? WHERE username = ?',
+                (password_hash, username))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'message': f'Password reset for {username}'})
 
 # Initialize database on startup
 if __name__ == '__main__':

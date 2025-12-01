@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - GACKfiles</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            padding: 10px 0;
+        }
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+        .header {
+            margin: 10px 10px 20px 10px;
+        }
+        .admin-section {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            padding: 0;
+            margin: 0 0 20px 0;
+            border-radius: 2px;
+        }
+        .admin-section h2 {
+            padding: 15px 20px;
+            margin: 0 0 10px 0;
+            color: #00ff41;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 18px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            min-width: 600px;
+        }
+        .admin-table th {
+            background: #0f0f0f;
+            color: #00ff41;
+            padding: 10px;
+            text-align: left;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            border: 1px solid #2a2a2a;
+        }
+        .admin-table td {
+            padding: 10px;
+            border: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            font-size: 12px;
+        }
+        .admin-table tr:hover {
+            background: #0f0f0f;
+        }
+        .edit-form {
+            display: none;
+            background: #0f0f0f;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid #00ff41;
+            border-radius: 2px;
+        }
+        .edit-form.active {
+            display: block;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .form-row label {
+            color: #00ff41;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .form-row input {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #e0e0e0;
+            padding: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+        }
+        .form-row input:focus {
+            outline: none;
+            border-color: #00ff41;
+        }
+        .btn-edit {
+            background: #ffa500;
+            color: #000;
+            padding: 5px 10px;
+            font-size: 10px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 2px;
+        }
+        .btn-edit:hover {
+            background: #ffb84d;
+        }
+        .message-box {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 2px;
+            display: none;
+        }
+        .message-box.success {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+        .message-box.error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GACKfiles - Admin Panel</h1>
+            <div class="header-actions">
+                <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
+            </div>
+        </div>
+
+        <!-- Videos Management -->
+        <div class="admin-section">
+            <h2>Evidence Management</h2>
+
+            <div id="video-message" class="message-box"></div>
+
+            <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Keyword</th>
+                        <th>Hint</th>
+                        <th>Filename</th>
+                        <th style="width: 1%; white-space: nowrap;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for video in videos %}
+                    <tr>
+                        <td>{{ video.title }}</td>
+                        <td><code>{{ video.keyword }}</code></td>
+                        <td>{{ video.hint }}</td>
+                        <td><code>{{ video.filename }}</code></td>
+                        <td style="white-space: nowrap;">
+                            <button class="btn-edit" onclick="toggleEditForm('video-{{ video.id }}')">Edit</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5">
+                            <div id="video-{{ video.id }}" class="edit-form">
+                                <form onsubmit="return editVideo(event, {{ video.id }})">
+                                    <div class="form-row">
+                                        <label>Title:</label>
+                                        <input type="text" name="title" value="{{ video.title }}">
+                                    </div>
+                                    <div class="form-row">
+                                        <label>Keyword:</label>
+                                        <input type="text" name="keyword" value="{{ video.keyword }}">
+                                    </div>
+                                    <div class="form-row">
+                                        <label>Hint:</label>
+                                        <input type="text" name="hint" value="{{ video.hint }}">
+                                    </div>
+                                    <div class="form-row">
+                                        <label>Filename:</label>
+                                        <input type="text" name="filename" value="{{ video.filename }}">
+                                    </div>
+                                    <div class="form-row">
+                                        <label></label>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="admin-section">
+            <h2>Agent Management</h2>
+
+            <div id="user-message" class="message-box"></div>
+
+            <table class="admin-table" style="width: 100%; min-width: auto;">
+                <thead>
+                    <tr>
+                        <th style="word-wrap: break-word; padding: 8px;">Username</th>
+                        <th style="width: 60px; white-space: nowrap; padding: 8px;">Admin</th>
+                        <th style="width: 90px; white-space: nowrap; padding: 8px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td style="word-wrap: break-word; overflow-wrap: break-word; padding: 8px;">{{ user.username }}</td>
+                        <td style="white-space: nowrap; padding: 8px;">{{ 'Yes' if user.is_admin else 'No' }}</td>
+                        <td style="white-space: nowrap; padding: 8px;">
+                            <button class="btn-edit" onclick="toggleEditForm('user-{{ user.id }}')">Reset PW</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div id="user-{{ user.id }}" class="edit-form">
+                                <form onsubmit="return resetPassword(event, '{{ user.username }}')">
+                                    <div class="form-row">
+                                        <label>New Password:</label>
+                                        <input type="password" name="new_password" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <label></label>
+                                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleEditForm(formId) {
+            const form = document.getElementById(formId);
+            form.classList.toggle('active');
+        }
+
+        async function editVideo(event, videoId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            formData.append('video_id', videoId);
+
+            const messageBox = document.getElementById('video-message');
+
+            try {
+                const response = await fetch('{{ url_for("admin_edit_video") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.className = 'message-box success';
+                    messageBox.textContent = '✓ ' + result.message;
+                    messageBox.style.display = 'block';
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    messageBox.className = 'message-box error';
+                    messageBox.textContent = '✗ ' + result.error;
+                    messageBox.style.display = 'block';
+                }
+            } catch (error) {
+                messageBox.className = 'message-box error';
+                messageBox.textContent = '✗ An error occurred';
+                messageBox.style.display = 'block';
+            }
+
+            return false;
+        }
+
+        async function resetPassword(event, username) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            formData.append('username', username);
+
+            const messageBox = document.getElementById('user-message');
+
+            try {
+                const response = await fetch('{{ url_for("admin_reset_password") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.className = 'message-box success';
+                    messageBox.textContent = '✓ ' + result.message;
+                    messageBox.style.display = 'block';
+                    form.reset();
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                        toggleEditForm('user-' + event.target.closest('tr').previousElementSibling.children[0].textContent);
+                    }, 2000);
+                } else {
+                    messageBox.className = 'message-box error';
+                    messageBox.textContent = '✗ ' + result.error;
+                    messageBox.style.display = 'block';
+                }
+            } catch (error) {
+                messageBox.className = 'message-box error';
+                messageBox.textContent = '✗ An error occurred';
+                messageBox.style.display = 'block';
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>

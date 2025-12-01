@@ -196,6 +196,63 @@ Example:
 python init_db.py add-video challenge1.mp4 "First Challenge" "secret123" "Look behind the painting"
 ```
 
+### Edit Video Details
+
+Change any video property without recreating it:
+
+```bash
+cd app
+python init_db.py edit-video <id> [title] [keyword] [hint] [filename]
+```
+
+Examples:
+```bash
+# Edit just the title
+python init_db.py edit-video 1 "Skull Fragment"
+
+# Edit title and keyword
+python init_db.py edit-video 2 "Claw Marks" sharptalons
+
+# Edit title, keyword, and hint
+python init_db.py edit-video 3 "Torso Evidence" centralmass "Found in the main hall"
+
+# Edit only the hint (use empty strings to skip fields)
+python init_db.py edit-video 4 '' '' "New hint here"
+
+# Change the video filename
+python init_db.py edit-video 5 '' '' '' newtail.mp4
+```
+
+**Note**: Changes take effect immediately - just refresh the browser. No container restart needed!
+
+### Reset User Password
+
+Reset any user's password as admin:
+
+```bash
+cd app
+python init_db.py reset-password <username> <new_password>
+```
+
+Examples:
+```bash
+# Reset admin password
+python init_db.py reset-password admin mynewpassword
+
+# Reset any user password
+python init_db.py reset-password player1 resetpass123
+```
+
+### List All Data
+
+View current database contents:
+
+```bash
+cd app
+python init_db.py list-videos    # Shows all videos with IDs, titles, keywords, hints
+python init_db.py list-users     # Shows all users with IDs
+```
+
 ### Direct Database Access
 
 Use SQLite command-line tool or any SQLite browser:

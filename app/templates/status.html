@@ -12,6 +12,9 @@
             <h1>GACKfiles - Field Reports</h1>
             <div class="header-actions">
                 <a href="{{ url_for('qrscan') }}" class="btn btn-primary">Scan Evidence</a>
+                {% if is_admin %}
+                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Admin Panel</a>
+                {% endif %}
                 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
             </div>
         </div>
