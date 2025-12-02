@@ -151,10 +151,17 @@ def admin_required(f):
 # Routes
 @app.route('/')
 def index():
-    """Redirect to login or status based on session"""
+    """Redirect to login, intro, or status based on session"""
     token = request.cookies.get('session')
     user_id = get_user_from_session(token)
     if user_id:
+        # Check if user has seen intro
+        conn = get_db_connection()
+        user = conn.execute('SELECT seen_intro FROM users WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+
+        if user and not user['seen_intro']:
+            return redirect(url_for('intro'))
         return redirect(url_for('status'))
     return redirect(url_for('login'))
 
@@ -214,13 +221,13 @@ def register():
             conn.commit()
             conn.close()
 
-            # Auto-login after registration
+            # Auto-login after registration and redirect to intro
             conn = get_db_connection()
             user = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
             conn.close()
 
             token = create_session(user['id'])
-            response = make_response(redirect(url_for('status')))
+            response = make_response(redirect(url_for('intro')))
             response.set_cookie('session', token, httponly=True, samesite='Lax', max_age=app.config['SESSION_EXPIRY_HOURS']*3600)
             return response
 
@@ -240,6 +247,22 @@ def logout():
     response = make_response(redirect(url_for('login')))
     response.set_cookie('session', '', expires=0)
     return response
+
+@app.route('/intro')
+@login_required
+def intro(user_id):
+    """Intro/briefing page with mission video"""
+    return render_template('intro.html')
+
+@app.route('/mark-intro-seen', methods=['POST'])
+@login_required
+def mark_intro_seen(user_id):
+    """Mark that user has seen the intro"""
+    conn = get_db_connection()
+    conn.execute('UPDATE users SET seen_intro = 1 WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True})
 
 @app.route('/status')
 @login_required
@@ -283,6 +306,21 @@ def status(user_id):
                          unlocked_count=unlocked_count,
                          is_admin=is_admin,
                          all_solved=all_solved)
+
+@app.route('/qr/<scan_code>')
+def qr_redirect(scan_code):
+    """Handle QR code URL access - redirects to login/main page"""
+    # If someone scans with third-party scanner and clicks the URL,
+    # just redirect them to the appropriate page
+    token = request.cookies.get('session')
+    user_id = get_user_from_session(token)
+
+    if user_id:
+        # Logged in - redirect to field reports
+        return redirect(url_for('status'))
+    else:
+        # Not logged in - redirect to login
+        return redirect(url_for('login'))
 
 @app.route('/qrscan')
 @login_required
@@ -329,7 +367,8 @@ def video(user_id):
     video_id = request.args.get('id', type=int)
 
     if not video_id:
-        return "Video ID required", 400
+        # No ID provided - show no access
+        return render_template('no_access.html', video_title='UNKNOWN')
 
     conn = get_db_connection()
 
@@ -338,7 +377,8 @@ def video(user_id):
 
     if not video_data:
         conn.close()
-        return "Video not found", 404
+        # Invalid video ID - show no access
+        return render_template('no_access.html', video_title='INVALID ID')
 
     # Check if user has found this video (scanned the QR code)
     found = conn.execute('SELECT found_at FROM found WHERE user_id = ? AND video_id = ?',
@@ -346,7 +386,7 @@ def video(user_id):
 
     if not found:
         conn.close()
-        # User hasn't scanned the QR code - show error
+        # User hasn't scanned the QR code - show no access
         return render_template('no_access.html', video_title=video_data['title'])
 
     # Check if unlocked
@@ -494,6 +534,21 @@ def admin_reset_password(user_id):
     conn.close()
 
     return jsonify({'success': True, 'message': f'Password reset for {username}'})
+
+# Error handlers
+@app.errorhandler(404)
+def page_not_found(e):
+    """Handle 404 errors - redirect to main page"""
+    # Check if user is logged in
+    token = request.cookies.get('session')
+    user_id = get_user_from_session(token)
+
+    if user_id:
+        # Logged in - redirect to field reports
+        return redirect(url_for('status'))
+    else:
+        # Not logged in - redirect to login
+        return redirect(url_for('login'))
 
 # Initialize database on startup
 if __name__ == '__main__':

@@ -58,21 +58,15 @@
             <div class="warning-icon">⚠️</div>
             <h1>Unauthorized Access</h1>
 
-            <p><strong>Evidence File: {{ video_title }}</strong></p>
-
-            <div class="classified-warning">
-                <p>⛔ NO CHEATING DETECTED ⛔</p>
-            </div>
-
             <p>This evidence has not been officially discovered by your agent profile.</p>
 
-            <p>You must <strong>physically locate and scan the QR code</strong> to access this evidence file.</p>
+            <p>You must <strong>physically locate and scan the QR code</strong> to access this evidence.</p>
 
             <p style="color: #00ff41; font-style: italic; margin-top: 30px;">
                 "The Truth Is Out There... But You Have To Find It Yourself"
             </p>
 
-            <div style="margin-top: 30px;">
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <a href="{{ url_for('qrscan') }}" class="btn btn-primary">Scan Evidence Marker</a>
                 <a href="{{ url_for('status') }}" class="btn btn-secondary">Return to Field Reports</a>
             </div>

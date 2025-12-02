@@ -1,0 +1,5 @@
+Place your intro.mp4 briefing video here.
+
+This video plays on the Mission Briefing page shown to new agents on first login.
+
+Rename your video file to: intro.mp4

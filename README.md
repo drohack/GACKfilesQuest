@@ -221,25 +221,28 @@ python init_db.py add-user player2 secretpass
 
 ## Creating QR Codes
 
-QR codes must contain only the scan code (not URLs)!
+QR codes contain URLs with scan codes embedded in the path.
 
 ### Current Scan Codes
 
-- **HEAD**: `GACK_HEAD_7X9K2`
-- **CLAWS**: `GACK_CLAW_4M8N1`
-- **BODY**: `GACK_BODY_3P5L6`
-- **FEET**: `GACK_FEET_9R2T4`
-- **TAIL**: `GACK_TAIL_6Q1W8`
+- **HEAD**: `https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2`
+- **CLAWS**: `https://gackfiles.saltychart.net/qr/GACK_CLAW_4M8N1`
+- **BODY**: `https://gackfiles.saltychart.net/qr/GACK_BODY_3P5L6`
+- **FEET**: `https://gackfiles.saltychart.net/qr/GACK_FEET_9R2T4`
+- **TAIL**: `https://gackfiles.saltychart.net/qr/GACK_TAIL_6Q1W8`
 
 ### Generate QR Codes
 
-Use any QR code generator with **just the scan code as text**:
+Use any QR code generator with the full URL:
 
 **Online Generators:**
 - [QR Code Generator](https://www.qr-code-generator.com/)
 - [QR Code Monkey](https://www.qrcode-monkey.com/)
 
-**Enter:** `GACK_HEAD_7X9K2` (not a URL!)
+**Enter the full URL:**
+```
+https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2
+```
 
 **Command Line:**
 ```bash
@@ -248,14 +251,26 @@ sudo apt-get install qrencode  # Linux
 brew install qrencode           # Mac
 
 # Generate QR codes
-qrencode -o head-qr.png "GACK_HEAD_7X9K2"
-qrencode -o claws-qr.png "GACK_CLAW_4M8N1"
-qrencode -o body-qr.png "GACK_BODY_3P5L6"
-qrencode -o feet-qr.png "GACK_FEET_9R2T4"
-qrencode -o tail-qr.png "GACK_TAIL_6Q1W8"
+qrencode -o head-qr.png "https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2"
+qrencode -o claws-qr.png "https://gackfiles.saltychart.net/qr/GACK_CLAW_4M8N1"
+qrencode -o body-qr.png "https://gackfiles.saltychart.net/qr/GACK_BODY_3P5L6"
+qrencode -o feet-qr.png "https://gackfiles.saltychart.net/qr/GACK_FEET_9R2T4"
+qrencode -o tail-qr.png "https://gackfiles.saltychart.net/qr/GACK_TAIL_6Q1W8"
 ```
 
-**Important:** Third-party QR scanners will show useless text. Only the in-app scanner validates codes with the server!
+### How It Works
+
+**Third-Party Scanner (Phone Camera):**
+- Shows clickable URL
+- Clicking URL → Redirects to login/main page
+- No evidence access (secure!)
+
+**In-App Scanner:**
+- Extracts scan code from URL
+- Validates with server
+- Marks as found and grants access
+
+**Security:** URLs look legitimate but don't grant access without using the in-app scanner!
 
 ## Security Features
 
@@ -264,16 +279,20 @@ qrencode -o tail-qr.png "GACK_TAIL_6Q1W8"
 **Problem Solved:** Users can't share video URLs to bypass QR code hunting.
 
 **How It Works:**
-1. QR codes contain scan codes, not URLs
-2. Must use in-app scanner (third-party scanners are useless)
-3. Server validates code and marks as "found"
-4. Direct video URL access checks "found" status
-5. No found record = "NO CHEATING" error page
+1. QR codes contain URLs like: `https://domain.com/qr/GACK_HEAD_7X9K2`
+2. Third-party scanners show legitimate-looking URL
+3. Clicking URL (browser access) → Redirects to login/main page (no access)
+4. In-app scanner extracts code from URL
+5. Server validates code and marks as "found"
+6. Direct video URL access checks "found" status
+7. No found record = "Unauthorized Access" error page
 
 **Benefits:**
+- QR codes look legitimate (actual URLs)
+- Third-party scanners work but don't grant access
+- Can't bypass by sharing or clicking URLs
+- Must physically find and scan with in-app scanner
 - Static QR codes (never change)
-- Can't bypass by sharing URLs
-- Must physically find and scan each QR code
 - Tracks legitimate discoveries per user
 
 ### Admin Access Control

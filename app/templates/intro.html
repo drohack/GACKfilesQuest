@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Briefing - GACKfiles</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        .briefing-container {
+            background: #1a1a1a;
+            border: 2px solid #00ff41;
+            border-radius: 2px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+        }
+        .briefing-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .briefing-header h1 {
+            color: #00ff41;
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+            animation: glow 2s ease-in-out infinite;
+        }
+        .briefing-header p {
+            color: #888;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .classified-banner {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid #ff6b35;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 2px;
+        }
+        .classified-banner p {
+            color: #ff6b35;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        .video-briefing {
+            margin: 30px 0;
+        }
+        .video-briefing video {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #2a2a2a;
+            border-radius: 2px;
+            background: #000;
+        }
+        .continue-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #2a2a2a;
+        }
+        .continue-section p {
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="briefing-container">
+            <div class="briefing-header">
+                <h1>Mission Briefing</h1>
+                <p>Classified - Agent Eyes Only</p>
+            </div>
+
+            <div class="classified-banner">
+                <p>⚠ Classified Information ⚠</p>
+                <p>⚠ Level 5 Clearance Required ⚠</p>
+            </div>
+
+            <div class="video-briefing">
+                <video controls autoplay width="100%" preload="metadata">
+                    <source src="{{ url_for('static', filename='../videos/intro.mp4') }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="continue-section">
+                <p>Watch the briefing video above to receive your mission parameters.</p>
+                <button id="continue-btn" class="btn btn-primary" style="min-width: 200px;">
+                    Begin Investigation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('continue-btn').addEventListener('click', async () => {
+            // Mark intro as seen
+            try {
+                await fetch('{{ url_for("mark_intro_seen") }}', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Error marking intro as seen:', error);
+            }
+
+            // Redirect to field reports
+            window.location.href = '{{ url_for("status") }}';
+        });
+    </script>
+</body>
+</html>

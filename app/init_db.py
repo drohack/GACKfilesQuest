@@ -9,6 +9,44 @@ import sys
 
 DATABASE = 'database.db'
 
+def migrate_database():
+    """Update existing database schema without losing data"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    print("Checking for database updates...")
+
+    # Check users table columns
+    cursor.execute("PRAGMA table_info(users)")
+    user_columns = [column[1] for column in cursor.fetchall()]
+
+    if 'seen_intro' not in user_columns:
+        print("Adding seen_intro column to users table...")
+        cursor.execute('ALTER TABLE users ADD COLUMN seen_intro INTEGER DEFAULT 0')
+        print("[OK] Added seen_intro column")
+
+    if 'is_admin' not in user_columns:
+        print("Adding is_admin column to users table...")
+        cursor.execute('ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0')
+        print("[OK] Added is_admin column")
+
+    # Check videos table columns
+    cursor.execute("PRAGMA table_info(videos)")
+    video_columns = [column[1] for column in cursor.fetchall()]
+
+    if 'scan_code' not in video_columns:
+        print("Adding scan_code column to videos table...")
+        try:
+            cursor.execute('ALTER TABLE videos ADD COLUMN scan_code TEXT')
+            print("[OK] Added scan_code column")
+            print("[!] WARNING: Existing videos need scan codes added via admin panel or CLI")
+        except sqlite3.OperationalError as e:
+            print(f"[!] Could not add scan_code: {e}")
+
+    conn.commit()
+    conn.close()
+    print("Database migration complete!\n")
+
 def init_database():
     """Initialize database with tables and sample data"""
     conn = sqlite3.connect(DATABASE)
@@ -20,7 +58,8 @@ def init_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            is_admin INTEGER DEFAULT 0
+            is_admin INTEGER DEFAULT 0,
+            seen_intro INTEGER DEFAULT 0
         )
     ''')
 
@@ -261,9 +300,12 @@ if __name__ == '__main__':
             list_videos()
         elif command == 'list-users':
             list_users()
+        elif command == 'migrate':
+            migrate_database()
         else:
             print("Usage:")
             print("  python init_db.py                                                     # Initialize database")
+            print("  python init_db.py migrate                                             # Update database schema (keeps data)")
             print("  python init_db.py add-user <username> <password>                     # Add a user")
             print("  python init_db.py add-video <filename> <title> <keyword> <scan_code> [hint]  # Add a video")
             print("  python init_db.py edit-video <id> [title] [keyword] [hint] [scan_code] [filename]  # Edit a video")

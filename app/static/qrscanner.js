@@ -52,8 +52,17 @@ function onScanError(errorMessage) {
 
 // Process the scanned QR code
 async function processQRCode(qrContent) {
-    // QR code now contains just a scan code (e.g., "GACK_HEAD_7X9K2")
-    // Send to server for verification
+    // QR code can contain:
+    // 1. URL format: https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2
+    // 2. Plain code: GACK_HEAD_7X9K2
+
+    let scanCode = qrContent.trim();
+
+    // Extract scan code from URL if present
+    const urlMatch = qrContent.match(/\/qr\/([A-Z0-9_]+)/i);
+    if (urlMatch) {
+        scanCode = urlMatch[1];
+    }
 
     showSuccess("Verifying evidence code...");
 
@@ -63,7 +72,7 @@ async function processQRCode(qrContent) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ code: qrContent.trim() })
+            body: JSON.stringify({ code: scanCode })
         });
 
         const result = await response.json();
