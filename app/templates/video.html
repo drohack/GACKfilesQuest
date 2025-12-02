@@ -9,7 +9,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>{{ video.title }}</h1>
+            <h1 style="{% if is_unlocked %}text-align: center; width: 100%;{% else %}visibility: hidden;{% endif %}">
+                {% if is_unlocked %}{{ video.title }}{% else %}???{% endif %}
+            </h1>
             <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
         </div>
 
@@ -33,7 +35,7 @@
                     {% if is_unlocked %}
                     CASE STATUS: CLOSED - Solution verified and filed.
                     {% else %}
-                    Analyze the evidence footage and enter the solution code to close this case.
+                    Analyze the evidence footage carefully. Search deeper for hidden clues. Once you've identified the solution, enter the classified code below to close this case.
                     {% endif %}
                 </p>
 
