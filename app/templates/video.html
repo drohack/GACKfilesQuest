@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ video.title }} - GACKfiles Quest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='cashout-modal.css') }}">
 </head>
 <body>
     <div class="container">
@@ -12,7 +13,14 @@
             <h1 style="{% if is_unlocked %}text-align: center; width: 100%;{% else %}visibility: hidden;{% endif %}">
                 {% if is_unlocked %}{{ video.title }}{% else %}???{% endif %}
             </h1>
-            <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
+            <div class="header-actions">
+                <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
+            </div>
+            <div class="gack-coin-container">
+                <span class="gack-coin-label">GACKcoin: <strong>{{ gack_coin }}</strong></span>
+                <button class="btn btn-green btn-cash-out">Cash Out GACKcoin</button>
+            </div>
         </div>
 
         <div class="video-container">
@@ -98,5 +106,23 @@
             }
         });
     </script>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="qr-modal">
+        <div class="qr-modal-content">
+            <div class="qr-modal-header">Cash Out GACKcoin</div>
+            <div class="qr-code-container">
+                <img id="qr-code-image" src="" alt="QR Code">
+            </div>
+            <div class="qr-expiry">Expires in <span id="qr-expiry-time">5</span> minutes</div>
+            <div class="qr-instructions">
+                Show this QR code to an admin to cash out your GACKcoin.<br>
+                The admin will scan this code to process your transaction.
+            </div>
+            <button class="btn-close-modal" onclick="closeQRModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='cashout.js') }}"></script>
 </body>
 </html>

@@ -5,11 +5,15 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, make_response, send_from_directory, jsonify
 import bcrypt
+import qrcode
+import io
+import base64
 
 app = Flask(__name__)
 app.config['DATABASE'] = 'database.db'
 app.config['VIDEO_FOLDER'] = 'videos'
-app.config['SESSION_EXPIRY_HOURS'] = 24
+app.config['SESSION_EXPIRY_HOURS'] = 72  # 3 days
+app.config['CASHOUT_TOKEN_EXPIRY_MINUTES'] = 5
 
 # Database helper functions
 def get_db_connection():
@@ -252,7 +256,11 @@ def logout():
 @login_required
 def intro(user_id):
     """Intro/briefing page with mission video"""
-    return render_template('intro.html')
+    conn = get_db_connection()
+    user = conn.execute('SELECT gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    gack_coin = user['gack_coin'] if user else 0
+    return render_template('intro.html', gack_coin=gack_coin)
 
 @app.route('/mark-intro-seen', methods=['POST'])
 @login_required
@@ -270,9 +278,10 @@ def status(user_id):
     """Status page showing found, unlocked, and missing videos"""
     conn = get_db_connection()
 
-    # Check if user is admin
-    user = conn.execute('SELECT is_admin FROM users WHERE id = ?', (user_id,)).fetchone()
+    # Check if user is admin and get gack_coin
+    user = conn.execute('SELECT is_admin, gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
     is_admin = user['is_admin'] if user else 0
+    gack_coin = user['gack_coin'] if user else 0
 
     # Get all videos with found and unlocked status
     videos = conn.execute('''
@@ -305,7 +314,8 @@ def status(user_id):
                          found_count=found_count,
                          unlocked_count=unlocked_count,
                          is_admin=is_admin,
-                         all_solved=all_solved)
+                         all_solved=all_solved,
+                         gack_coin=gack_coin)
 
 @app.route('/qr/<scan_code>')
 def qr_redirect(scan_code):
@@ -326,7 +336,11 @@ def qr_redirect(scan_code):
 @login_required
 def qrscan(user_id):
     """QR code scanning page"""
-    return render_template('qrscan.html')
+    conn = get_db_connection()
+    user = conn.execute('SELECT gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+    gack_coin = user['gack_coin'] if user else 0
+    return render_template('qrscan.html', gack_coin=gack_coin)
 
 @app.route('/verify-scan', methods=['POST'])
 @login_required
@@ -351,6 +365,8 @@ def verify_scan(user_id):
     # Mark as found
     try:
         conn.execute('INSERT INTO found (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
+        # Increment gack_coin for first-time scan
+        conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
         conn.commit()
     except sqlite3.IntegrityError:
         # Already found, that's okay
@@ -393,11 +409,16 @@ def video(user_id):
     unlocked = conn.execute('SELECT unlocked_at FROM unlocks WHERE user_id = ? AND video_id = ?',
                            (user_id, video_id)).fetchone()
 
+    # Get user's gack_coin count
+    user = conn.execute('SELECT gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
+    gack_coin = user['gack_coin'] if user else 0
+
     conn.close()
 
     return render_template('video.html',
                          video=dict(video_data),
-                         is_unlocked=bool(unlocked))
+                         is_unlocked=bool(unlocked),
+                         gack_coin=gack_coin)
 
 @app.route('/unlock', methods=['POST'])
 @login_required
@@ -423,6 +444,8 @@ def unlock(user_id):
         # Mark as unlocked
         try:
             conn.execute('INSERT INTO unlocks (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
+            # Increment gack_coin for first-time unlock
+            conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
             conn.commit()
             conn.close()
             return jsonify({'success': True, 'message': 'Video unlocked successfully!'})
@@ -451,11 +474,16 @@ def admin(user_id):
     # Get all users
     users = conn.execute('SELECT id, username, is_admin FROM users ORDER BY id').fetchall()
 
+    # Get gack_coin for current admin user
+    user = conn.execute('SELECT gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
+    gack_coin = user['gack_coin'] if user else 0
+
     conn.close()
 
     return render_template('admin.html',
                          videos=[dict(v) for v in videos],
-                         users=[dict(u) for u in users])
+                         users=[dict(u) for u in users],
+                         gack_coin=gack_coin)
 
 @app.route('/admin/edit-video', methods=['POST'])
 @admin_required
@@ -534,6 +562,132 @@ def admin_reset_password(user_id):
     conn.close()
 
     return jsonify({'success': True, 'message': f'Password reset for {username}'})
+
+@app.route('/cashout-generate', methods=['POST'])
+@login_required
+def cashout_generate(user_id):
+    """Generate a cashout QR code token for the user"""
+    conn = get_db_connection()
+
+    # Clean up expired/used tokens for this user
+    conn.execute('DELETE FROM cashout_tokens WHERE user_id = ? AND (used = 1 OR expires_at < ?)',
+                (user_id, datetime.now()))
+    conn.commit()
+
+    # Generate secure token
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(minutes=app.config['CASHOUT_TOKEN_EXPIRY_MINUTES'])
+
+    # Store token in database
+    conn.execute('INSERT INTO cashout_tokens (token, user_id, expires_at) VALUES (?, ?, ?)',
+                (token, user_id, expires_at))
+    conn.commit()
+    conn.close()
+
+    # Generate QR code with full URL (uses current domain from request)
+    qr_url = request.host_url.rstrip('/') + url_for('admin_cashout', token=token)
+
+    # Create QR code image
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(qr_url)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Convert to base64 for embedding in HTML
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+    return jsonify({
+        'success': True,
+        'qr_code': f'data:image/png;base64,{img_base64}',
+        'expires_in': app.config['CASHOUT_TOKEN_EXPIRY_MINUTES']
+    })
+
+@app.route('/admin/cashout/<token>', methods=['GET', 'POST'])
+@admin_required
+def admin_cashout(admin_user_id, token):
+    """Admin cashout page - validate token and process cashout"""
+    conn = get_db_connection()
+
+    # Validate token
+    token_data = conn.execute('''
+        SELECT user_id, expires_at, used
+        FROM cashout_tokens
+        WHERE token = ?
+    ''', (token,)).fetchone()
+
+    if not token_data:
+        conn.close()
+        return render_template('no_access.html',
+                             video_title='Invalid Cashout Token'), 404
+
+    # Check if expired
+    if datetime.fromisoformat(token_data['expires_at']) < datetime.now():
+        conn.close()
+        return render_template('no_access.html',
+                             video_title='Expired Cashout Token'), 403
+
+    # Check if already used
+    if token_data['used']:
+        conn.close()
+        return render_template('no_access.html',
+                             video_title='Token Already Used'), 403
+
+    target_user_id = token_data['user_id']
+
+    # Get user info
+    user = conn.execute('SELECT username, gack_coin FROM users WHERE id = ?',
+                       (target_user_id,)).fetchone()
+
+    if not user:
+        conn.close()
+        return render_template('no_access.html',
+                             video_title='User Not Found'), 404
+
+    # Get admin's gack_coin
+    admin_user = conn.execute('SELECT gack_coin FROM users WHERE id = ?',
+                             (admin_user_id,)).fetchone()
+    admin_gack_coin = admin_user['gack_coin'] if admin_user else 0
+
+    if request.method == 'POST':
+        # Process cashout
+        cashout_amount = request.form.get('cashout_amount', type=int)
+
+        if cashout_amount is None or cashout_amount < 0:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Invalid cashout amount'}), 400
+
+        if cashout_amount > user['gack_coin']:
+            conn.close()
+            return jsonify({'success': False, 'error': 'Cannot cashout more than user has'}), 400
+
+        # Update user's gack_coin
+        new_balance = user['gack_coin'] - cashout_amount
+        conn.execute('UPDATE users SET gack_coin = ? WHERE id = ?',
+                    (new_balance, target_user_id))
+
+        # Mark token as used
+        conn.execute('UPDATE cashout_tokens SET used = 1 WHERE token = ?', (token,))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': f'Successfully cashed out {cashout_amount} GACKcoin',
+            'new_balance': new_balance
+        })
+
+    conn.close()
+
+    return render_template('cashout.html',
+                         username=user['username'],
+                         gack_coin=user['gack_coin'],
+                         admin_gack_coin=admin_gack_coin,
+                         token=token)
 
 # Error handlers
 @app.errorhandler(404)

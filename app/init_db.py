@@ -30,6 +30,11 @@ def migrate_database():
         cursor.execute('ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0')
         print("[OK] Added is_admin column")
 
+    if 'gack_coin' not in user_columns:
+        print("Adding gack_coin column to users table...")
+        cursor.execute('ALTER TABLE users ADD COLUMN gack_coin INTEGER DEFAULT 0')
+        print("[OK] Added gack_coin column")
+
     # Check videos table columns
     cursor.execute("PRAGMA table_info(videos)")
     video_columns = [column[1] for column in cursor.fetchall()]
@@ -42,6 +47,22 @@ def migrate_database():
             print("[!] WARNING: Existing videos need scan codes added via admin panel or CLI")
         except sqlite3.OperationalError as e:
             print(f"[!] Could not add scan_code: {e}")
+
+    # Check if cashout_tokens table exists
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cashout_tokens'")
+    if not cursor.fetchone():
+        print("Creating cashout_tokens table...")
+        cursor.execute('''
+            CREATE TABLE cashout_tokens (
+                token TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                expires_at TIMESTAMP NOT NULL,
+                used INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+        print("[OK] Created cashout_tokens table")
 
     conn.commit()
     conn.close()
@@ -59,7 +80,8 @@ def init_database():
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             is_admin INTEGER DEFAULT 0,
-            seen_intro INTEGER DEFAULT 0
+            seen_intro INTEGER DEFAULT 0,
+            gack_coin INTEGER DEFAULT 0
         )
     ''')
 
@@ -108,6 +130,18 @@ def init_database():
             FOREIGN KEY (user_id) REFERENCES users(id),
             FOREIGN KEY (video_id) REFERENCES videos(id),
             UNIQUE(user_id, video_id)
+        )
+    ''')
+
+    # Create cashout_tokens table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS cashout_tokens (
+            token TEXT PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP NOT NULL,
+            used INTEGER DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
 

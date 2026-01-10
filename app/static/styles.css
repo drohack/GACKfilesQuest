@@ -53,6 +53,36 @@ body {
     flex-wrap: wrap;
 }
 
+/* GACKcoin Container */
+.gack-coin-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.gack-coin-label {
+    color: #aaa;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.gack-coin-label strong {
+    color: #00ff41;
+    font-size: 18px;
+    margin-left: 5px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.btn-cash-out {
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
 /* Cards */
 .card {
     background: #1a1a1a;
@@ -186,6 +216,18 @@ body {
 .btn-secondary:hover {
     background: rgba(255, 107, 53, 0.1);
     box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-green {
+    background: transparent;
+    color: #00ff41;
+    border-color: #00ff41;
+}
+
+.btn-green:hover {
+    background: rgba(0, 255, 65, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
     transform: translateY(-1px);
 }
 

@@ -1,0 +1,81 @@
+/* QR Code Modal Styles */
+.qr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-modal.active {
+    display: flex;
+}
+
+.qr-modal-content {
+    background: #1a1a1a;
+    border: 2px solid #00ff41;
+    border-radius: 2px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 40px rgba(0, 255, 65, 0.4);
+    text-align: center;
+}
+
+.qr-modal-header {
+    color: #00ff41;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.qr-code-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+}
+
+.qr-code-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+.qr-expiry {
+    color: #ff6b35;
+    font-size: 12px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.qr-instructions {
+    color: #aaa;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.btn-close-modal {
+    background: #ff6b35;
+    color: #fff;
+    border: none;
+    padding: 10px 30px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: #ff8555;
+}
