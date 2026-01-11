@@ -53,12 +53,24 @@ function onScanError(errorMessage) {
 // Process the scanned QR code
 async function processQRCode(qrContent) {
     // QR code can contain:
-    // 1. URL format: https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2
-    // 2. Plain code: GACK_HEAD_7X9K2
+    // 1. Evidence URL: https://gackfiles.saltychart.net/qr/GACK_HEAD_7X9K2
+    // 2. Cashout URL: https://gackfiles.saltychart.net/admin/cashout/TOKEN
+    // 3. Plain code: GACK_HEAD_7X9K2
 
     let scanCode = qrContent.trim();
 
-    // Extract scan code from URL if present
+    // Check if this is a cashout URL
+    const cashoutMatch = qrContent.match(/\/admin\/cashout\/([A-Za-z0-9_-]+)/);
+    if (cashoutMatch) {
+        // This is a cashout QR code - redirect to the cashout page
+        showSuccess("Cashout QR detected! Redirecting to cashout page...");
+        setTimeout(() => {
+            window.location.href = qrContent;
+        }, 1000);
+        return;
+    }
+
+    // Extract evidence scan code from URL if present
     const urlMatch = qrContent.match(/\/qr\/([A-Z0-9_]+)/i);
     if (urlMatch) {
         scanCode = urlMatch[1];
