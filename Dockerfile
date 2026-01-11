@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY app/ /app/
 
-# Create videos directory (will be mounted from host)
-RUN mkdir -p /app/videos
+# Create videos and images directories (will be mounted from host)
+RUN mkdir -p /app/videos /app/images
 
 # Expose port 8080
 EXPOSE 8080

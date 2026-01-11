@@ -11,6 +11,8 @@ services:
       - ./app/database.db:/app/database.db
       # Mount videos directory from host
       - ./app/videos:/app/videos
+      # Mount images directory for bonus evidence
+      - ./app/images:/app/images
     restart: always
     environment:
       - TZ=UTC
