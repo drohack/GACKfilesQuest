@@ -351,7 +351,7 @@ docker exec -it video-quest /bin/bash
 
 ### Update on Unraid (Preserves Database)
 
-Pull latest changes from GitHub and rebuild while keeping all user data:
+Pull latest changes from GitHub and update while keeping all user data:
 
 ```bash
 # SSH into Unraid
@@ -363,15 +363,17 @@ cd /mnt/user/appdata/gackfiles-quest
 # Pull latest code from GitHub
 git pull
 
-# IMPORTANT: Run database migration to add new columns
-# This is safe and preserves all existing data
-cd app
-python3 init_db.py migrate
-cd ..
-
-# Rebuild and restart container
+# Stop old container
 docker-compose down
+
+# Start container with new code
 docker-compose up -d --build
+
+# Run database migration inside container (adds new columns safely)
+docker-compose exec video-quest python init_db.py migrate
+
+# Restart container to ensure clean state
+docker-compose restart
 
 # Verify it's running
 docker-compose logs --tail 20
@@ -381,7 +383,7 @@ docker-compose logs --tail 20
 - `app/database.db` is preserved (in .gitignore)
 - Migration only adds new columns, never deletes data
 - All user accounts, progress, and settings remain intact
-- Video files stay in place
+- Video/image files stay in place
 - Same login credentials
 
 **After update:** Access at your normal URL with existing credentials.
