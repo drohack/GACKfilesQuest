@@ -655,6 +655,10 @@ def cashout_generate(user_id):
     """Generate a cashout QR code token for the user"""
     conn = get_db_connection()
 
+    # Get user's current balance
+    user = conn.execute('SELECT gack_coin FROM users WHERE id = ?', (user_id,)).fetchone()
+    current_balance = user['gack_coin'] if user else 0
+
     # Clean up expired/used tokens for this user
     conn.execute('DELETE FROM cashout_tokens WHERE user_id = ? AND (used = 1 OR expires_at < ?)',
                 (user_id, datetime.now()))
@@ -689,7 +693,8 @@ def cashout_generate(user_id):
     return jsonify({
         'success': True,
         'qr_code': f'data:image/png;base64,{img_base64}',
-        'expires_in': app.config['CASHOUT_TOKEN_EXPIRY_MINUTES']
+        'expires_in': app.config['CASHOUT_TOKEN_EXPIRY_MINUTES'],
+        'balance': current_balance
     })
 
 @app.route('/admin/cashout/<token>', methods=['GET', 'POST'])

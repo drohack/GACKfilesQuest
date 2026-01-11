@@ -158,6 +158,82 @@
             border: 1px solid #ff6b35;
             color: #ff6b35;
         }
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirmation-modal.active {
+            display: flex;
+        }
+        .confirmation-content {
+            background: #1a1a1a;
+            border: 2px solid #ff6b35;
+            border-radius: 2px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.4);
+            text-align: center;
+        }
+        .confirmation-header {
+            color: #ff6b35;
+            font-size: 22px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .confirmation-amount {
+            color: #00ff41;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+        .confirmation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .btn-confirm {
+            background: #00ff41;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .btn-confirm:hover {
+            background: #00cc34;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+        }
+        .btn-deny {
+            background: transparent;
+            color: #ff6b35;
+            border: 1px solid #ff6b35;
+            padding: 12px 30px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+        .btn-deny:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -204,8 +280,8 @@
             </div>
 
             <div class="submit-section">
-                <button class="btn btn-primary" style="min-width: 200px; font-size: 16px;" onclick="processCashout()" id="submit-btn">
-                    Confirm & Process Cashout
+                <button class="btn btn-primary" style="min-width: 200px; font-size: 16px;" onclick="showConfirmation()" id="submit-btn">
+                    Confirm Cashout?
                 </button>
             </div>
         </div>
@@ -230,11 +306,24 @@
             document.getElementById('remaining-balance').textContent = maxBalance - currentAmount;
         }
 
-        async function processCashout() {
+        function showConfirmation() {
             if (currentAmount === 0) {
                 showMessage('Please select an amount to cashout', 'error');
                 return;
             }
+
+            // Show confirmation modal
+            document.getElementById('confirm-amount').textContent = currentAmount;
+            document.getElementById('confirmation-modal').classList.add('active');
+        }
+
+        function closeConfirmation() {
+            document.getElementById('confirmation-modal').classList.remove('active');
+        }
+
+        async function confirmCashout() {
+            // Close confirmation modal
+            closeConfirmation();
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
@@ -254,17 +343,17 @@
                 if (result.success) {
                     showMessage(result.message + ' - Redirecting...', 'success');
                     setTimeout(() => {
-                        window.location.href = '{{ url_for("admin") }}';
+                        window.location.href = '{{ url_for("status") }}';
                     }, 2000);
                 } else {
                     showMessage(result.error || 'Cashout failed', 'error');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Confirm & Process Cashout';
+                    submitBtn.textContent = 'Confirm Cashout?';
                 }
             } catch (error) {
                 showMessage('An error occurred. Please try again.', 'error');
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Confirm & Process Cashout';
+                submitBtn.textContent = 'Confirm Cashout?';
             }
         }
 
@@ -279,17 +368,34 @@
         updateDisplay();
     </script>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="confirmation-modal">
+        <div class="confirmation-content">
+            <div class="confirmation-header">Confirm Cashout</div>
+            <p style="color: #aaa; margin-bottom: 10px;">Cash out this amount?</p>
+            <div class="confirmation-amount" id="confirm-amount">0</div>
+            <p style="color: #888; font-size: 12px;">GACKcoin</p>
+            <div class="confirmation-buttons">
+                <button class="btn-confirm" onclick="confirmCashout()">Confirm</button>
+                <button class="btn-deny" onclick="closeConfirmation()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- QR Code Modal -->
     <div id="qr-modal" class="qr-modal">
         <div class="qr-modal-content">
             <div class="qr-modal-header">Cash Out GACKcoin</div>
+            <div style="text-align: center; color: #00ff41; font-size: 18px; margin-bottom: 15px;">
+                Available: <strong id="qr-balance" style="font-size: 24px;">0</strong> GACKcoin
+            </div>
             <div class="qr-code-container">
                 <img id="qr-code-image" src="" alt="QR Code">
             </div>
             <div class="qr-expiry">Expires in <span id="qr-expiry-time">5</span> minutes</div>
             <div class="qr-instructions">
-                Show this QR code to an admin to cash out your GACKcoin.<br>
-                The admin will scan this code to process your transaction.
+                Show this QR code to a member of G.A.C.K. to cash out your GACKcoin.<br>
+                (Grayson, Ariel, Kat, or Carl)
             </div>
             <button class="btn-close-modal" onclick="closeQRModal()">Close</button>
         </div>

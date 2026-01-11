@@ -13,6 +13,7 @@ async function showCashoutQR() {
         if (result.success) {
             document.getElementById('qr-code-image').src = result.qr_code;
             document.getElementById('qr-expiry-time').textContent = result.expires_in;
+            document.getElementById('qr-balance').textContent = result.balance;
             document.getElementById('qr-modal').classList.add('active');
 
             // Start countdown timer
@@ -47,6 +48,9 @@ function closeQRModal() {
         clearTimeout(expiryTimer);
         expiryTimer = null;
     }
+
+    // Refresh page to update GACKcoin balance
+    window.location.reload();
 }
 
 // Initialize on page load
