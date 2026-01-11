@@ -94,7 +94,6 @@
 
             <div class="classified-banner">
                 <p>⚠ Classified Information ⚠</p>
-                <p>⚠ Level 5 Clearance Required ⚠</p>
             </div>
 
             <div class="video-briefing">
@@ -106,8 +105,22 @@
 
             <div class="continue-section">
                 <p>Watch the briefing video above to receive your mission parameters.</p>
-                <button id="continue-btn" class="btn btn-primary" style="min-width: 200px;">
-                    Begin Investigation
+                <div style="background: rgba(0, 255, 65, 0.05); border: 1px solid #00ff41; border-radius: 2px; padding: 20px; margin: 20px 0;">
+                    <p style="color: #00ff41; font-size: 14px; line-height: 1.8; margin-bottom: 15px;">
+                        <strong>IMPORTANT INSTRUCTIONS:</strong>
+                    </p>
+                    <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 10px;">
+                        To collect evidence, you must use the <strong style="color: #00ff41;">IN-APP QR SCANNER</strong> on the next page.
+                    </p>
+                    <p style="color: #aaa; font-size: 13px; line-height: 1.8; margin-bottom: 10px;">
+                        If you just scanned a QR code with your phone camera to get here, go back and <strong style="color: #00ff41;">scan it again using the in-app scanner</strong> to claim your evidence.
+                    </p>
+                    <p style="color: #ff6b35; font-size: 12px; line-height: 1.8;">
+                        Third-party camera scans will NOT grant access to evidence.
+                    </p>
+                </div>
+                <button id="continue-btn" class="btn btn-primary" style="min-width: 250px;">
+                    Open Evidence Scanner
                 </button>
             </div>
         </div>
@@ -140,8 +153,8 @@
                 console.error('Error marking intro as seen:', error);
             }
 
-            // Redirect to field reports
-            window.location.href = '{{ url_for("status") }}';
+            // Redirect to QR scanner
+            window.location.href = '{{ url_for("qrscan") }}';
         });
     </script>
     <script src="{{ url_for('static', filename='cashout.js') }}"></script>

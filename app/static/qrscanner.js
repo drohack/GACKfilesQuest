@@ -80,6 +80,12 @@ async function processQRCode(qrContent) {
         if (result.success) {
             // Code verified, video marked as found
             showSuccess("Evidence discovered! Accessing file...");
+
+            // Check for bonus coin award
+            if (result.bonus_awarded && result.bonus_message) {
+                alert('🎉 ' + result.bonus_message);
+            }
+
             setTimeout(() => {
                 window.location.href = `/video?id=${result.video_id}`;
             }, 1000);

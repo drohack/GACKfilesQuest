@@ -283,8 +283,8 @@ def status(user_id):
     is_admin = user['is_admin'] if user else 0
     gack_coin = user['gack_coin'] if user else 0
 
-    # Get all videos with found and unlocked status
-    videos = conn.execute('''
+    # Get main evidence (is_bonus = 0)
+    main_videos = conn.execute('''
         SELECT
             v.id,
             v.title,
@@ -294,22 +294,41 @@ def status(user_id):
         FROM videos v
         LEFT JOIN found f ON v.id = f.video_id AND f.user_id = ?
         LEFT JOIN unlocks u ON v.id = u.video_id AND u.user_id = ?
+        WHERE v.is_bonus = 0
+        ORDER BY v.id
+    ''', (user_id, user_id)).fetchall()
+
+    # Get bonus evidence (is_bonus = 1)
+    bonus_videos = conn.execute('''
+        SELECT
+            v.id,
+            v.title,
+            v.hint,
+            f.found_at,
+            u.unlocked_at
+        FROM videos v
+        LEFT JOIN found f ON v.id = f.video_id AND f.user_id = ?
+        LEFT JOIN unlocks u ON v.id = u.video_id AND u.user_id = ?
+        WHERE v.is_bonus = 1
         ORDER BY v.id
     ''', (user_id, user_id)).fetchall()
 
     conn.close()
 
-    # Convert to list of dicts and calculate counts
-    videos_list = [dict(video) for video in videos]
-    total_count = len(videos_list)
-    found_count = sum(1 for v in videos_list if v['found_at'])
-    unlocked_count = sum(1 for v in videos_list if v['unlocked_at'])
+    # Convert to list of dicts and calculate counts (only for main evidence)
+    main_videos_list = [dict(video) for video in main_videos]
+    bonus_videos_list = [dict(video) for video in bonus_videos]
 
-    # Check if all videos are unlocked (cryptid identified)
+    total_count = len(main_videos_list)
+    found_count = sum(1 for v in main_videos_list if v['found_at'])
+    unlocked_count = sum(1 for v in main_videos_list if v['unlocked_at'])
+
+    # Check if all main videos are unlocked (cryptid identified)
     all_solved = (unlocked_count == total_count and total_count > 0)
 
     return render_template('status.html',
-                         videos=videos_list,
+                         videos=main_videos_list,
+                         bonus_videos=bonus_videos_list,
                          total_count=total_count,
                          found_count=found_count,
                          unlocked_count=unlocked_count,
@@ -321,15 +340,16 @@ def status(user_id):
 def qr_redirect(scan_code):
     """Handle QR code URL access - redirects to login/main page"""
     # If someone scans with third-party scanner and clicks the URL,
-    # just redirect them to the appropriate page
+    # redirect them to login (if not logged in) or scanner page (if logged in)
+    # This maintains anti-sharing security - only in-app scanner grants access
     token = request.cookies.get('session')
     user_id = get_user_from_session(token)
 
     if user_id:
-        # Logged in - redirect to field reports
-        return redirect(url_for('status'))
+        # Logged in - redirect to scanner page with instruction
+        return redirect(url_for('qrscan'))
     else:
-        # Not logged in - redirect to login
+        # Not logged in - redirect to login, then they'll need to use in-app scanner
         return redirect(url_for('login'))
 
 @app.route('/qrscan')
@@ -354,13 +374,15 @@ def verify_scan(user_id):
     conn = get_db_connection()
 
     # Look up video by scan code
-    video = conn.execute('SELECT id FROM videos WHERE scan_code = ?', (scan_code,)).fetchone()
+    video = conn.execute('SELECT id, is_bonus FROM videos WHERE scan_code = ?', (scan_code,)).fetchone()
 
     if not video:
         conn.close()
         return jsonify({'success': False, 'error': 'Invalid scan code'}), 404
 
     video_id = video['id']
+    is_bonus = video['is_bonus']
+    bonus_awarded = False
 
     # Mark as found
     try:
@@ -368,13 +390,36 @@ def verify_scan(user_id):
         # Increment gack_coin for first-time scan
         conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
         conn.commit()
+
+        # Check if all main evidence has been found (bonus reward)
+        if not is_bonus:
+            main_found_count = conn.execute('''
+                SELECT COUNT(*) as count
+                FROM found f
+                JOIN videos v ON f.video_id = v.id
+                WHERE f.user_id = ? AND v.is_bonus = 0
+            ''', (user_id,)).fetchone()['count']
+
+            main_total_count = conn.execute('SELECT COUNT(*) as count FROM videos WHERE is_bonus = 0').fetchone()['count']
+
+            if main_found_count == main_total_count:
+                # Award bonus coin for finding all main evidence
+                conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
+                conn.commit()
+                bonus_awarded = True
+
     except sqlite3.IntegrityError:
         # Already found, that's okay
         pass
 
     conn.close()
 
-    return jsonify({'success': True, 'video_id': video_id})
+    return jsonify({
+        'success': True,
+        'video_id': video_id,
+        'bonus_awarded': bonus_awarded,
+        'bonus_message': 'Congratulations! You found all main evidence! +1 Bonus GACKcoin!' if bonus_awarded else None
+    })
 
 @app.route('/video')
 @login_required
@@ -415,7 +460,10 @@ def video(user_id):
 
     conn.close()
 
-    return render_template('video.html',
+    # Choose template based on bonus status
+    template = 'bonus.html' if video_data['is_bonus'] else 'video.html'
+
+    return render_template(template,
                          video=dict(video_data),
                          is_unlocked=bool(unlocked),
                          gack_coin=gack_coin)
@@ -432,26 +480,58 @@ def unlock(user_id):
 
     conn = get_db_connection()
 
-    # Get video keyword
-    video_data = conn.execute('SELECT keyword FROM videos WHERE id = ?', (video_id,)).fetchone()
+    # Get video keyword and bonus status
+    video_data = conn.execute('SELECT keyword, is_bonus FROM videos WHERE id = ?', (video_id,)).fetchone()
 
     if not video_data:
         conn.close()
         return jsonify({'success': False, 'error': 'Video not found'}), 404
 
     # Check keyword (case-insensitive)
-    if keyword.lower() == video_data['keyword'].lower():
+    # Special case: "*ANY*" accepts any non-empty answer
+    keyword_matches = (video_data['keyword'] == '*ANY*' and keyword.strip() != '') or (keyword.lower() == video_data['keyword'].lower())
+
+    if keyword_matches:
         # Mark as unlocked
         try:
             conn.execute('INSERT INTO unlocks (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
             # Increment gack_coin for first-time unlock
             conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
             conn.commit()
+
+            bonus_awarded = False
+            # Check if all main evidence has been solved (bonus reward)
+            if not video_data['is_bonus']:
+                main_solved_count = conn.execute('''
+                    SELECT COUNT(*) as count
+                    FROM unlocks u
+                    JOIN videos v ON u.video_id = v.id
+                    WHERE u.user_id = ? AND v.is_bonus = 0
+                ''', (user_id,)).fetchone()['count']
+
+                main_total_count = conn.execute('SELECT COUNT(*) as count FROM videos WHERE is_bonus = 0').fetchone()['count']
+
+                if main_solved_count == main_total_count:
+                    # Award bonus coin for solving all main evidence
+                    conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
+                    conn.commit()
+                    bonus_awarded = True
+
             conn.close()
-            return jsonify({'success': True, 'message': 'Video unlocked successfully!'})
+
+            if bonus_awarded:
+                return jsonify({
+                    'success': True,
+                    'message': 'Evidence unlocked successfully!',
+                    'bonus_awarded': True,
+                    'bonus_message': 'Congratulations! You solved all main evidence! +1 Bonus GACKcoin!'
+                })
+            else:
+                return jsonify({'success': True, 'message': 'Evidence unlocked successfully!'})
+
         except sqlite3.IntegrityError:
             conn.close()
-            return jsonify({'success': True, 'message': 'Video already unlocked!'})
+            return jsonify({'success': True, 'message': 'Evidence already unlocked!'})
     else:
         conn.close()
         return jsonify({'success': False, 'error': 'Incorrect keyword'})

@@ -71,6 +71,45 @@
                 {% endfor %}
             </div>
 
+            <!-- Bonus Evidence Section -->
+            {% if bonus_videos %}
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #2a2a2a;">
+                <h3 style="color: #ff6b35; text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">Bonus Evidence</h3>
+                {% for bonus in bonus_videos %}
+                {% set found = bonus.found_at %}
+                {% set solved = bonus.unlocked_at %}
+                <div style="background: rgba(255, 107, 53, 0.05); border: 1px solid #ff6b35; border-radius: 2px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 20px;">
+                            {% if solved %}✓{% elif found %}📂{% else %}?{% endif %}
+                        </span>
+                        <div>
+                            <strong style="color: #ff6b35; text-transform: uppercase; letter-spacing: 1px;">
+                                {% if solved %}{{ bonus.title }}{% else %}Bonus: ????{% endif %}
+                            </strong>
+                            <p style="font-size: 11px; color: #888; margin-top: 5px;">
+                                {% if solved %}
+                                    SOLVED
+                                {% elif found %}
+                                    FOUND - Awaiting Analysis
+                                {% else %}
+                                    {{ bonus.hint }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        {% if found %}
+                        <a href="{{ url_for('video', id=bonus.id) }}" class="btn btn-secondary" style="padding: 8px 16px; font-size: 12px;">
+                            {% if solved %}Review{% else %}Investigate{% endif %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             <!-- Progress summary -->
             <div class="progress-summary">
                 <div class="progress-stat">

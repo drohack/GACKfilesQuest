@@ -48,6 +48,21 @@ def migrate_database():
         except sqlite3.OperationalError as e:
             print(f"[!] Could not add scan_code: {e}")
 
+    if 'is_bonus' not in video_columns:
+        print("Adding is_bonus column to videos table...")
+        cursor.execute('ALTER TABLE videos ADD COLUMN is_bonus INTEGER DEFAULT 0')
+        print("[OK] Added is_bonus column")
+
+    if 'image_path' not in video_columns:
+        print("Adding image_path column to videos table...")
+        cursor.execute('ALTER TABLE videos ADD COLUMN image_path TEXT')
+        print("[OK] Added image_path column")
+
+    if 'description' not in video_columns:
+        print("Adding description column to videos table...")
+        cursor.execute('ALTER TABLE videos ADD COLUMN description TEXT')
+        print("[OK] Added description column")
+
     # Check if cashout_tokens table exists
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cashout_tokens'")
     if not cursor.fetchone():
@@ -95,7 +110,7 @@ def init_database():
         )
     ''')
 
-    # Create videos table
+    # Create videos table (also handles bonus evidence)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,7 +118,10 @@ def init_database():
             title TEXT NOT NULL,
             keyword TEXT NOT NULL,
             hint TEXT,
-            scan_code TEXT UNIQUE NOT NULL
+            scan_code TEXT UNIQUE NOT NULL,
+            is_bonus INTEGER DEFAULT 0,
+            image_path TEXT,
+            description TEXT
         )
     ''')
 
@@ -215,6 +233,26 @@ def add_video(filename, title, keyword, scan_code, hint=''):
     finally:
         conn.close()
 
+def add_bonus(title, keyword, scan_code, image_path, description, hint=''):
+    """Add a new bonus evidence to the database"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('''INSERT INTO videos
+                         (filename, title, keyword, hint, scan_code, is_bonus, image_path, description)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                      ('bonus.jpg', title, keyword, hint, scan_code, 1, image_path, description))
+        conn.commit()
+        print(f"[OK] Bonus evidence '{title}' added successfully!")
+        print(f"  Scan code: {scan_code}")
+        print(f"  Images: {image_path}")
+        print(f"  Description: {description[:50]}..." if len(description) > 50 else f"  Description: {description}")
+    except sqlite3.IntegrityError:
+        print(f"[X] Bonus evidence already exists or scan code is not unique!")
+    finally:
+        conn.close()
+
 def edit_video(video_id, title=None, keyword=None, hint=None, scan_code=None, filename=None):
     """Edit an existing video"""
     conn = sqlite3.connect(DATABASE)
@@ -287,11 +325,16 @@ def list_videos():
     print("\n=== Videos ===")
     for video in videos:
         print(f"\nID: {video['id']}")
+        print(f"  Type: {'BONUS' if video['is_bonus'] else 'MAIN'}")
         print(f"  Title: {video['title']}")
         print(f"  Scan Code: {video['scan_code']}")
         print(f"  Keyword: {video['keyword']}")
         print(f"  Hint: {video['hint']}")
-        print(f"  Filename: {video['filename']}")
+        if video['is_bonus']:
+            print(f"  Images: {video['image_path']}")
+            print(f"  Description: {video['description'][:60]}..." if video['description'] and len(video['description']) > 60 else f"  Description: {video['description']}")
+        else:
+            print(f"  Filename: {video['filename']}")
 
 def list_users():
     """List all users"""
@@ -319,6 +362,9 @@ if __name__ == '__main__':
         elif command == 'add-video' and len(sys.argv) >= 6:
             hint = sys.argv[6] if len(sys.argv) > 6 else ''
             add_video(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], hint)
+        elif command == 'add-bonus' and len(sys.argv) >= 7:
+            hint = sys.argv[7] if len(sys.argv) > 7 else ''
+            add_bonus(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], hint)
         elif command == 'edit-video' and len(sys.argv) >= 3:
             video_id = int(sys.argv[2])
             # Parse optional arguments
@@ -342,12 +388,14 @@ if __name__ == '__main__':
             print("  python init_db.py migrate                                             # Update database schema (keeps data)")
             print("  python init_db.py add-user <username> <password>                     # Add a user")
             print("  python init_db.py add-video <filename> <title> <keyword> <scan_code> [hint]  # Add a video")
+            print("  python init_db.py add-bonus <title> <keyword> <scan_code> <image_path> <description> [hint]  # Add bonus evidence")
             print("  python init_db.py edit-video <id> [title] [keyword] [hint] [scan_code] [filename]  # Edit a video")
             print("  python init_db.py reset-password <username> <new_password>           # Reset user password")
             print("  python init_db.py list-videos                                        # List all videos")
             print("  python init_db.py list-users                                         # List all users")
             print("\nExamples:")
             print("  python init_db.py add-video head.mp4 HEAD cranium GACK_HEAD_X1Y2    # Add new video")
+            print("  python init_db.py add-bonus 'Secret Clue' answer123 BONUS_001 'clue1.jpg,clue2.jpg' '<p>Solve this riddle...</p>' 'Find the hidden clue'")
             print("  python init_db.py edit-video 1 'Skull Fragment' bones               # Update title and keyword")
             print("  python init_db.py edit-video 3 '' '' 'New hint' GACK_NEW_CODE       # Update hint and scan code")
             print("  python init_db.py reset-password admin newpass123                   # Reset admin password")

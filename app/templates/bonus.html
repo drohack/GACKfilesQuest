@@ -6,6 +6,48 @@
     <title>{{ video.title }} - GACKfiles Quest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='cashout-modal.css') }}">
+    <style>
+        .bonus-evidence-container {
+            background: #1a1a1a;
+            border: 2px solid #ff6b35;
+            border-radius: 2px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .bonus-badge {
+            display: inline-block;
+            background: rgba(255, 107, 53, 0.2);
+            color: #ff6b35;
+            padding: 5px 15px;
+            border: 1px solid #ff6b35;
+            border-radius: 2px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .bonus-images {
+            margin: 20px 0;
+        }
+        .bonus-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border: 1px solid #2a2a2a;
+            border-radius: 2px;
+            margin-bottom: 15px;
+            background: #000;
+        }
+        .bonus-description {
+            background: #0f0f0f;
+            border: 1px solid #2a2a2a;
+            border-radius: 2px;
+            padding: 20px;
+            margin: 20px 0;
+            line-height: 1.8;
+            color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -23,27 +65,43 @@
             </div>
         </div>
 
-        <div class="video-container">
+        <div class="bonus-evidence-container">
+            <span class="bonus-badge">Bonus Evidence</span>
+
             {% if is_unlocked %}
             <div class="success-banner">
-                <p>✓ CASE SOLVED - Evidence Analyzed Successfully</p>
+                <p>✓ BONUS SOLVED - Evidence Analyzed Successfully</p>
             </div>
             {% endif %}
 
-            <!-- Video always visible once found -->
-            <video controls width="100%" preload="metadata">
-                <source src="{{ url_for('serve_video', filename=video.filename) }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            <!-- Display images if available -->
+            {% if video.image_path %}
+            <div class="bonus-images">
+                {% set image_paths = video.image_path.split(',') %}
+                {% for image in image_paths %}
+                <img src="{{ url_for('static', filename='../images/' + image.strip()) }}"
+                     alt="Bonus Evidence"
+                     class="bonus-image">
+                {% endfor %}
+            </div>
+            {% endif %}
 
-            <!-- Unlock form always visible -->
+            <!-- Display description/riddle -->
+            {% if video.description %}
+            <div class="bonus-description">
+                <h3 style="color: #ff6b35; margin-bottom: 15px;">Evidence Details</h3>
+                {{ video.description | safe }}
+            </div>
+            {% endif %}
+
+            <!-- Unlock form -->
             <div class="unlock-form-container" style="margin-top: 20px;">
-                <h3>Case Analysis</h3>
+                <h3>Solution Analysis</h3>
                 <p style="color: #aaa; margin-bottom: 15px;">
                     {% if is_unlocked %}
-                    CASE STATUS: CLOSED - Solution verified and filed.
+                    BONUS STATUS: SOLVED - Solution verified and filed.
                     {% else %}
-                    Analyze the evidence footage carefully. Search deeper for hidden clues. Once you've identified the solution, enter the classified code below to close this case.
+                    Study the bonus evidence carefully. Solve the riddle or complete the task. Enter the solution code below.
                     {% endif %}
                 </p>
 
@@ -51,10 +109,10 @@
                     <input type="hidden" name="video_id" value="{{ video.id }}">
                     <div class="form-group">
                         <label for="keyword">Solution Code</label>
-                        <input type="text" id="keyword" name="keyword" placeholder="Enter classified code" required {% if is_unlocked %}disabled{% endif %}>
+                        <input type="text" id="keyword" name="keyword" placeholder="Enter solution code" required {% if is_unlocked %}disabled{% endif %}>
                     </div>
                     <button type="submit" class="btn btn-primary" {% if is_unlocked %}disabled{% endif %}>
-                        {% if is_unlocked %}Case Closed{% else %}Submit Solution{% endif %}
+                        {% if is_unlocked %}Bonus Solved{% else %}Submit Solution{% endif %}
                     </button>
                 </form>
 
@@ -82,7 +140,7 @@
 
                 if (result.success) {
                     messageDiv.className = 'message success-message';
-                    let message = '✓ ' + result.message + ' - Case solved!';
+                    let message = '✓ ' + result.message;
 
                     // Check for bonus coin award
                     if (result.bonus_awarded && result.bonus_message) {
@@ -96,15 +154,15 @@
                     // Disable form after successful completion
                     keywordInput.disabled = true;
                     submitBtn.disabled = true;
-                    submitBtn.textContent = 'Case Closed';
+                    submitBtn.textContent = 'Bonus Solved';
 
-                    // Show success banner
+                    // Reload to show updated state
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
                 } else {
                     messageDiv.className = 'message error-message';
-                    messageDiv.textContent = '✗ ' + (result.error || 'Invalid code. Reanalyze the evidence!');
+                    messageDiv.textContent = '✗ ' + (result.error || 'Invalid code. Review the evidence!');
                     messageDiv.style.display = 'block';
                 }
             } catch (error) {
