@@ -79,7 +79,7 @@
             <div class="bonus-images">
                 {% set image_paths = video.image_path.split(',') %}
                 {% for image in image_paths %}
-                <img src="{{ url_for('static', filename='../images/' + image.strip()) }}"
+                <img src="{{ url_for('serve_image', filename=image.strip()) }}"
                      alt="Bonus Evidence"
                      class="bonus-image">
                 {% endfor %}

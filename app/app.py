@@ -542,6 +542,12 @@ def serve_video(user_id, filename):
     """Serve video files"""
     return send_from_directory(app.config['VIDEO_FOLDER'], filename)
 
+@app.route('/images/<path:filename>')
+@login_required
+def serve_image(user_id, filename):
+    """Serve bonus evidence image files"""
+    return send_from_directory('images', filename)
+
 @app.route('/admin')
 @admin_required
 def admin(user_id):
