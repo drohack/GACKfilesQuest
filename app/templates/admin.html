@@ -221,7 +221,7 @@
                     <tr>
                         <th style="word-wrap: break-word; padding: 8px;">Username</th>
                         <th style="width: 60px; white-space: nowrap; padding: 8px;">Admin</th>
-                        <th style="width: 90px; white-space: nowrap; padding: 8px;">Action</th>
+                        <th style="width: 200px; white-space: nowrap; padding: 8px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -230,7 +230,9 @@
                         <td style="word-wrap: break-word; overflow-wrap: break-word; padding: 8px;">{{ user.username }}</td>
                         <td style="white-space: nowrap; padding: 8px;">{{ 'Yes' if user.is_admin else 'No' }}</td>
                         <td style="white-space: nowrap; padding: 8px;">
-                            <button class="btn-edit" onclick="toggleEditForm('user-{{ user.id }}')">Reset PW</button>
+                            <button class="btn-edit" onclick="showResetPasswordConfirm('{{ user.username }}', 'user-{{ user.id }}')" style="margin-right: 5px;">Reset PW</button>
+                            <button class="btn-edit" onclick="showResetProgressConfirm('{{ user.username }}')" style="margin-right: 5px; background: #ff6b35;">Reset</button>
+                            <button class="btn-edit" onclick="showDeleteUserConfirm('{{ user.username }}')" style="background: #ff0000;">Delete</button>
                         </td>
                     </tr>
                     <tr>
@@ -334,6 +336,105 @@
             }
 
             return false;
+        }
+
+        function showResetPasswordConfirm(username, formId) {
+            if (confirm(`Reset password for user "${username}"?\n\nAction: Change password\nUser: ${username}\n\nClick OK to open the password reset form.`)) {
+                toggleEditForm(formId);
+            }
+        }
+
+        function showResetProgressConfirm(username) {
+            if (!confirm(`RESET PROGRESS for user "${username}"?\n\nAction: Clear all progress and coins\nUser: ${username}\n\nThis will:\n- Clear all found evidence\n- Clear all solved puzzles\n- Reset GACKcoin to 0\n\nThis cannot be undone!`)) {
+                return;
+            }
+            resetUserProgress(username);
+        }
+
+        function showDeleteUserConfirm(username) {
+            if (!confirm(`DELETE USER "${username}"?\n\nAction: Permanently delete user account\nUser: ${username}\n\nThis will:\n- Delete the user account\n- Delete all their progress\n- Delete all their sessions\n\nThis CANNOT be undone!`)) {
+                return;
+            }
+
+            // Double confirmation for delete
+            if (!confirm(`Are you absolutely sure you want to delete "${username}"?\n\nType the username in the next prompt to confirm.`)) {
+                return;
+            }
+
+            const confirmUsername = prompt(`Type "${username}" to confirm deletion:`);
+            if (confirmUsername !== username) {
+                alert('Username did not match. Deletion cancelled.');
+                return;
+            }
+
+            deleteUser(username);
+        }
+
+        async function resetUserProgress(username) {
+
+            const messageBox = document.getElementById('user-message');
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('{{ url_for("admin_reset_user") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.className = 'message-box success';
+                    messageBox.textContent = '✓ ' + result.message;
+                    messageBox.style.display = 'block';
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                    }, 3000);
+                } else {
+                    messageBox.className = 'message-box error';
+                    messageBox.textContent = '✗ ' + result.error;
+                    messageBox.style.display = 'block';
+                }
+            } catch (error) {
+                messageBox.className = 'message-box error';
+                messageBox.textContent = '✗ An error occurred';
+                messageBox.style.display = 'block';
+            }
+        }
+
+        async function deleteUser(username) {
+            const messageBox = document.getElementById('user-message');
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('{{ url_for("admin_delete_user") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.className = 'message-box success';
+                    messageBox.textContent = '✓ ' + result.message + ' - Reloading...';
+                    messageBox.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    messageBox.className = 'message-box error';
+                    messageBox.textContent = '✗ ' + result.error;
+                    messageBox.style.display = 'block';
+                }
+            } catch (error) {
+                messageBox.className = 'message-box error';
+                messageBox.textContent = '✗ An error occurred';
+                messageBox.style.display = 'block';
+            }
         }
     </script>
 

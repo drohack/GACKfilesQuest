@@ -649,6 +649,73 @@ def admin_reset_password(user_id):
 
     return jsonify({'success': True, 'message': f'Password reset for {username}'})
 
+@app.route('/admin/reset-user', methods=['POST'])
+@admin_required
+def admin_reset_user(user_id):
+    """Reset a user's progress - clear all found/unlocks and set gack_coin to 0"""
+    target_username = request.form.get('username', '').strip()
+
+    if not target_username:
+        return jsonify({'success': False, 'error': 'Username required'}), 400
+
+    conn = get_db_connection()
+
+    # Check if user exists
+    user = conn.execute('SELECT id FROM users WHERE username = ?', (target_username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    target_user_id = user['id']
+
+    # Delete all found and unlocks records for this user
+    conn.execute('DELETE FROM found WHERE user_id = ?', (target_user_id,))
+    conn.execute('DELETE FROM unlocks WHERE user_id = ?', (target_user_id,))
+
+    # Reset gack_coin to 0
+    conn.execute('UPDATE users SET gack_coin = 0 WHERE id = ?', (target_user_id,))
+
+    # Delete any active cashout tokens
+    conn.execute('DELETE FROM cashout_tokens WHERE user_id = ?', (target_user_id,))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'message': f'User {target_username} has been reset'})
+
+@app.route('/admin/delete-user', methods=['POST'])
+@admin_required
+def admin_delete_user(user_id):
+    """Delete a user completely"""
+    target_username = request.form.get('username', '').strip()
+
+    if not target_username:
+        return jsonify({'success': False, 'error': 'Username required'}), 400
+
+    conn = get_db_connection()
+
+    # Check if user exists
+    user = conn.execute('SELECT id FROM users WHERE username = ?', (target_username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    target_user_id = user['id']
+
+    # Delete all related records (cascading delete)
+    conn.execute('DELETE FROM found WHERE user_id = ?', (target_user_id,))
+    conn.execute('DELETE FROM unlocks WHERE user_id = ?', (target_user_id,))
+    conn.execute('DELETE FROM sessions WHERE user_id = ?', (target_user_id,))
+    conn.execute('DELETE FROM cashout_tokens WHERE user_id = ?', (target_user_id,))
+
+    # Delete the user
+    conn.execute('DELETE FROM users WHERE id = ?', (target_user_id,))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({'success': True, 'message': f'User {target_username} has been deleted'})
+
 @app.route('/cashout-generate', methods=['POST'])
 @login_required
 def cashout_generate(user_id):
