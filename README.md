@@ -363,6 +363,12 @@ cd /mnt/user/appdata/gackfiles-quest
 # Pull latest code from GitHub
 git pull
 
+# IMPORTANT: Run database migration to add new columns
+# This is safe and preserves all existing data
+cd app
+python3 init_db.py migrate
+cd ..
+
 # Rebuild and restart container
 docker-compose down
 docker-compose up -d --build
@@ -371,8 +377,9 @@ docker-compose up -d --build
 docker-compose logs --tail 20
 ```
 
-**Your data is safe!** The update only affects code files:
+**Your data is safe!** The database is volume-mounted from the host:
 - `app/database.db` is preserved (in .gitignore)
+- Migration only adds new columns, never deletes data
 - All user accounts, progress, and settings remain intact
 - Video files stay in place
 - Same login credentials
