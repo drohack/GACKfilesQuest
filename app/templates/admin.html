@@ -228,7 +228,12 @@
                     {% for user in users %}
                     <tr>
                         <td style="word-wrap: break-word; overflow-wrap: break-word; padding: 8px;">{{ user.username }}</td>
-                        <td style="white-space: nowrap; padding: 8px;">{{ 'Yes' if user.is_admin else 'No' }}</td>
+                        <td style="white-space: nowrap; padding: 8px;">
+                            <button class="btn-edit" onclick="toggleAdminStatus('{{ user.username }}', {{ user.is_admin }})"
+                                    style="background: {{ '#00ff41' if user.is_admin else '#ffa500' }}; color: #000; min-width: 50px;">
+                                {{ 'Yes' if user.is_admin else 'No' }}
+                            </button>
+                        </td>
                         <td style="white-space: nowrap; padding: 8px;">
                             <button class="btn-edit" onclick="showResetPasswordConfirm('{{ user.username }}', 'user-{{ user.id }}')" style="margin-right: 5px;">Reset PW</button>
                             <button class="btn-edit" onclick="showResetProgressConfirm('{{ user.username }}')" style="margin-right: 5px; background: #ff6b35;">Reset</button>
@@ -336,6 +341,46 @@
             }
 
             return false;
+        }
+
+        async function toggleAdminStatus(username, currentIsAdmin) {
+            const action = currentIsAdmin ? 'demote to regular user' : 'promote to admin';
+            const newStatus = currentIsAdmin ? 'User' : 'Admin';
+
+            if (!confirm(`Change admin status for "${username}"?\n\nAction: ${action.toUpperCase()}\nUser: ${username}\nNew Status: ${newStatus}\n\nConfirm this change?`)) {
+                return;
+            }
+
+            const messageBox = document.getElementById('user-message');
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('{{ url_for("admin_toggle_admin") }}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageBox.className = 'message-box success';
+                    messageBox.textContent = '✓ ' + result.message + ' - Reloading...';
+                    messageBox.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    messageBox.className = 'message-box error';
+                    messageBox.textContent = '✗ ' + result.error;
+                    messageBox.style.display = 'block';
+                }
+            } catch (error) {
+                messageBox.className = 'message-box error';
+                messageBox.textContent = '✗ An error occurred';
+                messageBox.style.display = 'block';
+            }
         }
 
         function showResetPasswordConfirm(username, formId) {

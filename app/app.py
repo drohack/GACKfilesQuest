@@ -716,6 +716,32 @@ def admin_delete_user(user_id):
 
     return jsonify({'success': True, 'message': f'User {target_username} has been deleted'})
 
+@app.route('/admin/toggle-admin', methods=['POST'])
+@admin_required
+def admin_toggle_admin(user_id):
+    """Toggle admin status for a user"""
+    target_username = request.form.get('username', '').strip()
+
+    if not target_username:
+        return jsonify({'success': False, 'error': 'Username required'}), 400
+
+    conn = get_db_connection()
+
+    # Check if user exists
+    user = conn.execute('SELECT id, is_admin FROM users WHERE username = ?', (target_username,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'error': 'User not found'}), 404
+
+    # Toggle admin status
+    new_admin_status = 0 if user['is_admin'] else 1
+    conn.execute('UPDATE users SET is_admin = ? WHERE username = ?', (new_admin_status, target_username))
+    conn.commit()
+    conn.close()
+
+    action = 'promoted to admin' if new_admin_status else 'demoted to user'
+    return jsonify({'success': True, 'message': f'User {target_username} {action}'})
+
 @app.route('/cashout-generate', methods=['POST'])
 @login_required
 def cashout_generate(user_id):
