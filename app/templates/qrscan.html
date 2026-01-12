@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code - GACKfiles Quest</title>
+    <title>GACKometer - GACKfiles Quest</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='cashout-modal.css') }}">
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Evidence Scanner</h1>
+            <h1 style="text-transform: none;">GACKometer</h1>
             <div class="header-actions">
                 <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
                 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
