@@ -568,8 +568,9 @@ button[type="submit"] {
     position: relative;
     width: 100%;
     max-width: 800px;
-    height: 450px;
-    margin: 0 auto 20px;
+    min-height: 500px;
+    height: 500px;
+    margin: 0 auto 0;
     overflow: visible;
 }
 
@@ -577,7 +578,7 @@ button[type="submit"] {
 .cryptid-silhouette {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 40%;
     transform: translate(-50%, -50%);
     filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.3));
 }
@@ -660,32 +661,67 @@ button[type="submit"] {
     gap: 10px;
 }
 
-/* Positioning for each marker (5 body parts) */
-.marker-1 { /* Head */
-    top: 8%;
+/* Positioning for each marker (IDs 9-20) */
+.marker-9 { /* Rocks - Head */
+    top: 0%;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.marker-2 { /* Claws */
-    top: 35%;
+.marker-10 { /* 90s Kids - Left upper */
+    top: 30%;
     left: 0;
 }
 
-.marker-3 { /* Body */
-    top: 58%;
+.marker-11 { /* Beerpong - Right upper */
+    top: 37%;
     right: 0;
 }
 
-.marker-4 { /* Feet */
-    bottom: 0;
+.marker-12 { /* REGACKTED - Bottom center */
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.marker-5 { /* Tail */
-    top: 60%;
+.marker-13 { /* Alice - Left lower */
+    top: 54%;
     left: 0;
+}
+
+.marker-14 { /* Ramen - Top right */
+    top: 10%;
+    right: 0;
+}
+
+.marker-15 { /* GACKmaster - Right middle */
+    top: 22%;
+    right: 0;
+}
+
+.marker-16 { /* Barpretender - Right lower */
+    top: 57%;
+    right: 0;
+}
+
+.marker-17 { /* Kegerator - Bottom right */
+    bottom: 5%;
+    right: 10%;
+}
+
+.marker-18 { /* Puzzles - Bottom left */
+    bottom: 5%;
+    left: 10%;
+}
+
+.marker-19 { /* Future Events - Top left */
+    top: 10%;
+    left: 0;
+}
+
+.marker-20 { /* Future video - Top center left */
+    top: 2%;
+    left: 18%;
 }
 
 /* Connecting lines from marker to center */
@@ -697,8 +733,8 @@ button[type="submit"] {
     opacity: 1;
 }
 
-/* Head - vertical line points to center of head */
-.marker-1 .marker-line {
+/* Marker 9 (Rocks) - vertical line points to center of head */
+.marker-9 .marker-line {
     width: 3px;
     height: 70px;
     top: 100%;
@@ -707,8 +743,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Claws - angled line points down to left claw tip */
-.marker-2 .marker-line {
+/* Marker 10 (90s Kids) - angled line points down to left claw tip */
+.marker-10 .marker-line {
     width: 60px;
     height: 3px;
     top: 50%;
@@ -718,8 +754,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Body - angled line points up to center of body */
-.marker-3 .marker-line {
+/* Marker 11 (Beerpong) - angled line points up to center of body */
+.marker-11 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
@@ -729,8 +765,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Feet - angled line points to left foot base */
-.marker-4 .marker-line {
+/* Marker 12 (REGACKTED) - angled line points to left foot base */
+.marker-12 .marker-line {
     width: 3px;
     height: 23px;
     bottom: 100%;
@@ -740,14 +776,91 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Tail - angled line points to middle of tail */
-.marker-5 .marker-line {
+/* Marker 13 (Alice) - angled line points to middle of tail */
+.marker-13 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
     left: 100%;
     transform-origin: left center;
     transform: rotate(12deg);
+    background: #555;
+}
+
+/* Marker 14 (Ramen) - top right horizontal line */
+.marker-14 .marker-line {
+    width: 80px;
+    height: 3px;
+    top: 50%;
+    right: 100%;
+    transform-origin: right center;
+    transform: rotate(-15deg);
+    background: #555;
+}
+
+/* Marker 15 (GACKmaster) - right upper horizontal line */
+.marker-15 .marker-line {
+    width: 100px;
+    height: 3px;
+    top: 50%;
+    right: 100%;
+    transform-origin: right center;
+    transform: rotate(5deg);
+    background: #555;
+}
+
+/* Marker 16 (Barpretender) - right lower horizontal line */
+.marker-16 .marker-line {
+    width: 100px;
+    height: 3px;
+    top: 50%;
+    right: 100%;
+    transform-origin: right center;
+    transform: rotate(-10deg);
+    background: #555;
+}
+
+/* Marker 17 (Kegerator) - bottom right vertical line */
+.marker-17 .marker-line {
+    width: 3px;
+    height: 40px;
+    bottom: 100%;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(30deg);
+    background: #555;
+}
+
+/* Marker 18 (Puzzles) - bottom left vertical line */
+.marker-18 .marker-line {
+    width: 3px;
+    height: 40px;
+    bottom: 100%;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-30deg);
+    background: #555;
+}
+
+/* Marker 19 (Future Events) - top left angled line */
+.marker-19 .marker-line {
+    width: 70px;
+    height: 3px;
+    top: 50%;
+    left: 100%;
+    transform-origin: left center;
+    transform: rotate(-10deg);
+    background: #555;
+}
+
+/* Marker 20 (Future) - top center left angled line */
+.marker-20 .marker-line {
+    width: 60px;
+    height: 3px;
+    top: 50%;
+    left: 100%;
+    transform-origin: left center;
+    transform: rotate(20deg);
     background: #555;
 }
 
@@ -781,12 +894,7 @@ button[type="submit"] {
     position: relative;
 }
 
-/* Head and Feet markers can be wider */
-.marker-1 .marker-content,
-.marker-4 .marker-content {
-    width: 180px;
-    padding: 8px 10px;
-}
+/* All markers same width */
 
 .evidence-marker.solved .marker-content {
     border-color: #00ff41;
@@ -844,9 +952,7 @@ button[type="submit"] {
     font-weight: bold;
 }
 
-.marker-1 .marker-header h3 {
-    font-size: 14px;
-}
+/* All markers same font size */
 
 .marker-info {
     width: 100%;
@@ -862,6 +968,7 @@ button[type="submit"] {
     letter-spacing: 0.3px;
     line-height: 1.1;
     font-weight: 600;
+    word-wrap: break-word;
 }
 
 .marker-status.solved {
@@ -934,7 +1041,7 @@ button[type="submit"] {
 /* Mobile responsiveness for cryptid diagram */
 @media (max-width: 768px) {
     .cryptid-diagram {
-        height: 420px;
+        height: 450px;
     }
 
     .marker-content {
@@ -950,7 +1057,9 @@ button[type="submit"] {
         font-size: 10px;
     }
 
-    .marker-1, .marker-2, .marker-3, .marker-4, .marker-5 {
+    .marker-9, .marker-10, .marker-11, .marker-12, .marker-13,
+    .marker-14, .marker-15, .marker-16, .marker-17, .marker-18,
+    .marker-19, .marker-20 {
         position: absolute;
     }
 }
