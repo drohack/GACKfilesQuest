@@ -768,11 +768,11 @@ button[type="submit"] {
 /* Marker 12 (REGACKTED) - angled line points to left foot base */
 .marker-12 .marker-line {
     width: 3px;
-    height: 23px;
+    height: 100px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translateX(-50%) rotate(-40deg);
+    transform: translateX(-50%) rotate(0deg);
     background: #555;
 }
 
@@ -783,18 +783,18 @@ button[type="submit"] {
     top: 50%;
     left: 100%;
     transform-origin: left center;
-    transform: rotate(12deg);
+    transform: rotate(-16deg);
     background: #555;
 }
 
 /* Marker 14 (Ramen) - top right horizontal line */
 .marker-14 .marker-line {
-    width: 80px;
+    width: 110px;
     height: 3px;
     top: 50%;
     right: 100%;
     transform-origin: right center;
-    transform: rotate(-15deg);
+    transform: rotate(-30deg);
     background: #555;
 }
 
@@ -805,7 +805,7 @@ button[type="submit"] {
     top: 50%;
     right: 100%;
     transform-origin: right center;
-    transform: rotate(5deg);
+    transform: rotate(-10deg);
     background: #555;
 }
 
@@ -816,40 +816,40 @@ button[type="submit"] {
     top: 50%;
     right: 100%;
     transform-origin: right center;
-    transform: rotate(-10deg);
+    transform: rotate(20deg);
     background: #555;
 }
 
 /* Marker 17 (Kegerator) - bottom right vertical line */
 .marker-17 .marker-line {
     width: 3px;
-    height: 40px;
+    height: 150px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translateX(-50%) rotate(30deg);
+    transform: translateX(-50%) rotate(-45deg);
     background: #555;
 }
 
 /* Marker 18 (Puzzles) - bottom left vertical line */
 .marker-18 .marker-line {
     width: 3px;
-    height: 40px;
+    height: 150px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translateX(-50%) rotate(-30deg);
+    transform: translateX(-50%) rotate(45deg);
     background: #555;
 }
 
 /* Marker 19 (Future Events) - top left angled line */
 .marker-19 .marker-line {
-    width: 70px;
+    width: 140px;
     height: 3px;
     top: 50%;
     left: 100%;
     transform-origin: left center;
-    transform: rotate(-10deg);
+    transform: rotate(50deg);
     background: #555;
 }
 
