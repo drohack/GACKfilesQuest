@@ -387,26 +387,7 @@ def verify_scan(user_id):
     # Mark as found
     try:
         conn.execute('INSERT INTO found (user_id, video_id) VALUES (?, ?)', (user_id, video_id))
-        # Increment gack_coin for first-time scan
-        conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
         conn.commit()
-
-        # Check if all main evidence has been found (bonus reward)
-        if not is_bonus:
-            main_found_count = conn.execute('''
-                SELECT COUNT(*) as count
-                FROM found f
-                JOIN videos v ON f.video_id = v.id
-                WHERE f.user_id = ? AND v.is_bonus = 0
-            ''', (user_id,)).fetchone()['count']
-
-            main_total_count = conn.execute('SELECT COUNT(*) as count FROM videos WHERE is_bonus = 0').fetchone()['count']
-
-            if main_found_count == main_total_count:
-                # Award bonus coin for finding all main evidence
-                conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
-                conn.commit()
-                bonus_awarded = True
 
     except sqlite3.IntegrityError:
         # Already found, that's okay
@@ -487,9 +468,9 @@ def unlock(user_id):
         conn.close()
         return jsonify({'success': False, 'error': 'Video not found'}), 404
 
-    # Check keyword (case-insensitive)
+    # Check keyword (case-insensitive, space-insensitive)
     # Special case: "*ANY*" accepts any non-empty answer
-    keyword_matches = (video_data['keyword'] == '*ANY*' and keyword.strip() != '') or (keyword.lower() == video_data['keyword'].lower())
+    keyword_matches = (video_data['keyword'] == '*ANY*' and keyword.strip() != '') or (keyword.lower().replace(' ', '') == video_data['keyword'].lower().replace(' ', ''))
 
     if keyword_matches:
         # Mark as unlocked
@@ -499,35 +480,8 @@ def unlock(user_id):
             conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
             conn.commit()
 
-            bonus_awarded = False
-            # Check if all main evidence has been solved (bonus reward)
-            if not video_data['is_bonus']:
-                main_solved_count = conn.execute('''
-                    SELECT COUNT(*) as count
-                    FROM unlocks u
-                    JOIN videos v ON u.video_id = v.id
-                    WHERE u.user_id = ? AND v.is_bonus = 0
-                ''', (user_id,)).fetchone()['count']
-
-                main_total_count = conn.execute('SELECT COUNT(*) as count FROM videos WHERE is_bonus = 0').fetchone()['count']
-
-                if main_solved_count == main_total_count:
-                    # Award bonus coin for solving all main evidence
-                    conn.execute('UPDATE users SET gack_coin = gack_coin + 1 WHERE id = ?', (user_id,))
-                    conn.commit()
-                    bonus_awarded = True
-
             conn.close()
-
-            if bonus_awarded:
-                return jsonify({
-                    'success': True,
-                    'message': 'Evidence unlocked successfully!',
-                    'bonus_awarded': True,
-                    'bonus_message': 'Congratulations! You solved all main evidence! +1 Bonus GACKcoin!'
-                })
-            else:
-                return jsonify({'success': True, 'message': 'Evidence unlocked successfully!'})
+            return jsonify({'success': True, 'message': 'Evidence unlocked successfully!'})
 
         except sqlite3.IntegrityError:
             conn.close()
