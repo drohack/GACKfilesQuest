@@ -326,6 +326,16 @@ def status(user_id):
     # Check if all main videos are unlocked (cryptid identified)
     all_solved = (unlocked_count == total_count and total_count > 0)
 
+    # Determine which single hint to show (for unfound main videos only)
+    unfound_main_videos = [v for v in main_videos_list if not v['found_at']]
+    active_hint_id = None
+    if unfound_main_videos:
+        # Use hash of user_id + sorted unfound IDs for deterministic selection
+        unfound_ids = tuple(sorted([v['id'] for v in unfound_main_videos]))
+        hash_seed = hash((user_id, unfound_ids))
+        selected_index = hash_seed % len(unfound_main_videos)
+        active_hint_id = unfound_main_videos[selected_index]['id']
+
     return render_template('status.html',
                          videos=main_videos_list,
                          bonus_videos=bonus_videos_list,
@@ -334,7 +344,8 @@ def status(user_id):
                          unlocked_count=unlocked_count,
                          is_admin=is_admin,
                          all_solved=all_solved,
-                         gack_coin=gack_coin)
+                         gack_coin=gack_coin,
+                         active_hint_id=active_hint_id)
 
 @app.route('/qr/<scan_code>')
 def qr_redirect(scan_code):

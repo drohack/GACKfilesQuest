@@ -63,7 +63,7 @@
                             <p class="marker-status found">FOUND</p>
                             <a href="{{ url_for('video', id=video.id) }}" class="marker-link">Investigate</a>
                             {% else %}
-                            <p class="marker-status missing">{{ video.hint }}</p>
+                            <p class="marker-status missing">{% if video.id == active_hint_id %}{{ video.hint }}{% else %}???{% endif %}</p>
                             {% endif %}
                         </div>
                     </div>

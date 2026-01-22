@@ -736,7 +736,7 @@ button[type="submit"] {
 /* Marker 9 (Rocks) - vertical line points to center of head */
 .marker-9 .marker-line {
     width: 3px;
-    height: 70px;
+    height: 80px;
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
@@ -768,7 +768,7 @@ button[type="submit"] {
 /* Marker 12 (REGACKTED) - angled line points to left foot base */
 .marker-12 .marker-line {
     width: 3px;
-    height: 100px;
+    height: 110px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
@@ -823,22 +823,22 @@ button[type="submit"] {
 /* Marker 17 (Kegerator) - bottom right vertical line */
 .marker-17 .marker-line {
     width: 3px;
-    height: 150px;
+    height: 155px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translateX(-50%) rotate(-45deg);
+    transform: translateX(-50%) rotate(-42deg);
     background: #555;
 }
 
 /* Marker 18 (Puzzles) - bottom left vertical line */
 .marker-18 .marker-line {
     width: 3px;
-    height: 150px;
+    height: 155px;
     bottom: 100%;
     left: 50%;
     transform-origin: bottom center;
-    transform: translateX(-50%) rotate(45deg);
+    transform: translateX(-50%) rotate(42deg);
     background: #555;
 }
 
