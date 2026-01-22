@@ -661,65 +661,65 @@ button[type="submit"] {
     gap: 10px;
 }
 
-/* Positioning for each marker (IDs 9-20) */
-.marker-9 { /* Rocks - Head */
+/* Positioning for each marker (IDs 8-19) */
+.marker-8 { /* Rocks - Head */
     top: 0%;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.marker-10 { /* 90s Kids - Left upper */
+.marker-9 { /* 90s Kids - Left upper */
     top: 30%;
     left: 0;
 }
 
-.marker-11 { /* Beerpong - Right upper */
+.marker-10 { /* Beerpong - Right upper */
     top: 37%;
     right: 0;
 }
 
-.marker-12 { /* REGACKTED - Bottom center */
+.marker-11 { /* REGACKTED - Bottom center */
     bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.marker-13 { /* Alice - Left lower */
+.marker-12 { /* Alice - Left lower */
     top: 54%;
     left: 0;
 }
 
-.marker-14 { /* Ramen - Top right */
+.marker-13 { /* Ramen - Top right */
     top: 10%;
     right: 0;
 }
 
-.marker-15 { /* GACKmaster - Right middle */
+.marker-14 { /* GACKmaster - Right middle */
     top: 22%;
     right: 0;
 }
 
-.marker-16 { /* Barpretender - Right lower */
+.marker-15 { /* Barpretender - Right lower */
     top: 57%;
     right: 0;
 }
 
-.marker-17 { /* Kegerator - Bottom right */
+.marker-16 { /* Kegerator - Bottom right */
     bottom: 5%;
     right: 10%;
 }
 
-.marker-18 { /* Puzzles - Bottom left */
+.marker-17 { /* Puzzles - Bottom left */
     bottom: 5%;
     left: 10%;
 }
 
-.marker-19 { /* Future Events - Top left */
+.marker-18 { /* Future Events - Top left */
     top: 10%;
     left: 0;
 }
 
-.marker-20 { /* Future video - Top center left */
+.marker-19 { /* Future video - Top center left */
     top: 2%;
     left: 18%;
 }
@@ -733,8 +733,8 @@ button[type="submit"] {
     opacity: 1;
 }
 
-/* Marker 9 (Rocks) - vertical line points to center of head */
-.marker-9 .marker-line {
+/* Marker 8 (Rocks) - vertical line points to center of head */
+.marker-8 .marker-line {
     width: 3px;
     height: 80px;
     top: 100%;
@@ -743,8 +743,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 10 (90s Kids) - angled line points down to left claw tip */
-.marker-10 .marker-line {
+/* Marker 9 (90s Kids) - angled line points down to left claw tip */
+.marker-9 .marker-line {
     width: 60px;
     height: 3px;
     top: 50%;
@@ -754,8 +754,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 11 (Beerpong) - angled line points up to center of body */
-.marker-11 .marker-line {
+/* Marker 10 (Beerpong) - angled line points up to center of body */
+.marker-10 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
@@ -765,8 +765,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 12 (REGACKTED) - angled line points to left foot base */
-.marker-12 .marker-line {
+/* Marker 11 (REGACKTED) - angled line points to left foot base */
+.marker-11 .marker-line {
     width: 3px;
     height: 110px;
     bottom: 100%;
@@ -776,8 +776,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 13 (Alice) - angled line points to middle of tail */
-.marker-13 .marker-line {
+/* Marker 12 (Alice) - angled line points to middle of tail */
+.marker-12 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
@@ -787,8 +787,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 14 (Ramen) - top right horizontal line */
-.marker-14 .marker-line {
+/* Marker 13 (Ramen) - top right horizontal line */
+.marker-13 .marker-line {
     width: 110px;
     height: 3px;
     top: 50%;
@@ -798,8 +798,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 15 (GACKmaster) - right upper horizontal line */
-.marker-15 .marker-line {
+/* Marker 14 (GACKmaster) - right upper horizontal line */
+.marker-14 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
@@ -809,8 +809,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 16 (Barpretender) - right lower horizontal line */
-.marker-16 .marker-line {
+/* Marker 15 (Barpretender) - right lower horizontal line */
+.marker-15 .marker-line {
     width: 100px;
     height: 3px;
     top: 50%;
@@ -820,8 +820,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 17 (Kegerator) - bottom right vertical line */
-.marker-17 .marker-line {
+/* Marker 16 (Kegerator) - bottom right vertical line */
+.marker-16 .marker-line {
     width: 3px;
     height: 155px;
     bottom: 100%;
@@ -831,8 +831,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 18 (Puzzles) - bottom left vertical line */
-.marker-18 .marker-line {
+/* Marker 17 (Puzzles) - bottom left vertical line */
+.marker-17 .marker-line {
     width: 3px;
     height: 155px;
     bottom: 100%;
@@ -842,8 +842,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 19 (Future Events) - top left angled line */
-.marker-19 .marker-line {
+/* Marker 18 (Future Events) - top left angled line */
+.marker-18 .marker-line {
     width: 140px;
     height: 3px;
     top: 50%;
@@ -853,8 +853,8 @@ button[type="submit"] {
     background: #555;
 }
 
-/* Marker 20 (Future) - top center left angled line */
-.marker-20 .marker-line {
+/* Marker 19 (Future) - top center left angled line */
+.marker-19 .marker-line {
     width: 60px;
     height: 3px;
     top: 50%;
@@ -1057,9 +1057,9 @@ button[type="submit"] {
         font-size: 10px;
     }
 
-    .marker-9, .marker-10, .marker-11, .marker-12, .marker-13,
-    .marker-14, .marker-15, .marker-16, .marker-17, .marker-18,
-    .marker-19, .marker-20 {
+    .marker-8, .marker-9, .marker-10, .marker-11, .marker-12,
+    .marker-13, .marker-14, .marker-15, .marker-16, .marker-17,
+    .marker-18, .marker-19 {
         position: absolute;
     }
 }
