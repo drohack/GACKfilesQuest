@@ -479,9 +479,14 @@ def unlock(user_id):
         conn.close()
         return jsonify({'success': False, 'error': 'Video not found'}), 404
 
-    # Check keyword (case-insensitive, space-insensitive)
+    # Check keyword (case-insensitive, space-insensitive, special-character-insensitive)
     # Special case: "*ANY*" accepts any non-empty answer
-    keyword_matches = (video_data['keyword'] == '*ANY*' and keyword.strip() != '') or (keyword.lower().replace(' ', '') == video_data['keyword'].lower().replace(' ', ''))
+    import re
+    def normalize_keyword(text):
+        # Remove all non-alphanumeric characters and convert to lowercase
+        return re.sub(r'[^a-z0-9]', '', text.lower())
+
+    keyword_matches = (video_data['keyword'] == '*ANY*' and keyword.strip() != '') or (normalize_keyword(keyword) == normalize_keyword(video_data['keyword']))
 
     if keyword_matches:
         # Mark as unlocked
