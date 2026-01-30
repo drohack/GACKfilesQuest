@@ -10,10 +10,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="{% if is_unlocked %}text-align: center; width: 100%;{% else %}visibility: hidden;{% endif %}">
-                {% if is_unlocked %}{{ video.title }}{% else %}???{% endif %}
+            {% if is_unlocked %}
+            <h1 style="text-align: center; width: 100%; margin: 0;">
+                {{ video.title }}
             </h1>
-            <div class="header-actions">
+            {% endif %}
+            <div class="header-actions" style="{% if not is_unlocked %}width: 100%; justify-content: flex-start;{% endif %}">
                 <a href="{{ url_for('status') }}" class="btn btn-secondary">Back to Field Reports</a>
                 <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sign Out</a>
             </div>
@@ -36,30 +38,26 @@
                 Your browser does not support the video tag.
             </video>
 
-            <!-- Unlock form always visible -->
-            <div class="unlock-form-container" style="margin-top: 20px;">
+            <!-- Unlock form only visible if not solved -->
+            {% if not is_unlocked %}
+            <div class="unlock-form-container" style="margin-top: 15px;">
                 <h3>Case Analysis</h3>
                 <p style="color: #aaa; margin-bottom: 15px;">
-                    {% if is_unlocked %}
-                    CASE STATUS: CLOSED - Solution verified and filed.
-                    {% else %}
                     Analyze the evidence footage carefully. Search deeper for hidden clues. Once you've identified the solution, enter the classified code below to close this case.
-                    {% endif %}
                 </p>
 
                 <form id="unlock-form">
                     <input type="hidden" name="video_id" value="{{ video.id }}">
                     <div class="form-group">
                         <label for="keyword">Solution Code</label>
-                        <input type="text" id="keyword" name="keyword" placeholder="Enter classified code" required {% if is_unlocked %}disabled{% endif %}>
+                        <input type="text" id="keyword" name="keyword" placeholder="Enter classified code" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" {% if is_unlocked %}disabled{% endif %}>
-                        {% if is_unlocked %}Case Closed{% else %}Submit Solution{% endif %}
-                    </button>
+                    <button type="submit" class="btn btn-primary">Submit Solution</button>
                 </form>
 
                 <div id="unlock-message" class="message" style="display: none;"></div>
             </div>
+            {% endif %}
         </div>
     </div>
 

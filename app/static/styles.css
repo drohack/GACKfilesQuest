@@ -28,10 +28,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 15px;
-    padding: 20px;
+    padding: 10px 20px;
     background: rgba(0, 255, 65, 0.05);
     border: 1px solid #00ff41;
     border-radius: 2px;
@@ -59,8 +59,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
+    margin-top: 6px;
+    padding-top: 6px;
     border-top: 1px solid rgba(0, 255, 65, 0.2);
 }
 
@@ -131,7 +131,7 @@ body {
 
 /* Forms */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .form-group label {
@@ -272,9 +272,9 @@ button[type="submit"] {
 .success-banner {
     background: rgba(0, 255, 65, 0.1);
     color: #00ff41;
-    padding: 15px;
+    padding: 10px;
     border-radius: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     text-align: center;
     border: 1px solid #00ff41;
     box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
@@ -397,13 +397,13 @@ button[type="submit"] {
     background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 2px;
-    padding: 25px;
+    padding: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .video-container video {
     border-radius: 2px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     width: 100%;
     max-width: 100%;
     height: auto;
@@ -437,7 +437,8 @@ button[type="submit"] {
 .unlock-form-container h3 {
     color: #00ff41;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    margin-top: 0;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
@@ -446,6 +447,7 @@ button[type="submit"] {
     text-align: center;
     color: #aaa;
     font-size: 14px;
+    margin-bottom: 10px;
 }
 
 /* QR Scanner */
@@ -690,7 +692,7 @@ button[type="submit"] {
 }
 
 .marker-13 { /* Ramen - Top right */
-    top: 10%;
+    top: 5%;
     right: 0;
 }
 
@@ -794,7 +796,7 @@ button[type="submit"] {
     top: 50%;
     right: 100%;
     transform-origin: right center;
-    transform: rotate(-30deg);
+    transform: rotate(-38deg);
     background: #555;
 }
 
