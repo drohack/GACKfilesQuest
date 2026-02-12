@@ -12,7 +12,12 @@
       "Bash(git add:*)",
       "Bash(openssl req:*)",
       "Bash(docker-compose down:*)",
-      "Bash(ipconfig:*)"
+      "Bash(ipconfig:*)",
+      "Bash(python app.py:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker exec video-quest grep:*)",
+      "Bash(docker exec:*)",
+      "Bash(python generate_qr_codes.py:*)"
     ],
     "deny": [],
     "ask": []
