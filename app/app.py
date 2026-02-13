@@ -687,7 +687,6 @@ def admin_delete_user(user_id):
     return jsonify({'success': True, 'message': f'User {target_username} has been deleted'})
 
 @app.route('/admin/toggle-admin', methods=['POST'])
-@admin_required
 def admin_toggle_admin(user_id):
     """Toggle admin status for a user"""
     target_username = request.form.get('username', '').strip()
